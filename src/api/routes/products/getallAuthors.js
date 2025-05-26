@@ -1,10 +1,10 @@
 import api from "../../api";
 
-export async function fetchCustomerInfo() {
+export async function getallAuthors() {
   try {
-    const response = await api.get("/customers/infoMe");
+    const response = await api.get("/products/variaveis/allAuthors");
 
-    console.log("Resposta da API:", response.data);
+ 
     return response.data;
   } catch (err) {
     console.error("Erro:", err);

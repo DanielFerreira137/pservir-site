@@ -39,17 +39,11 @@ function Registration() {
     setLoading(true);
 
     const dataToSend = {
-      username: email,
       password,
       email,
       name,
       phone,
-      country: '', // campo esperado pelo backend
       date_of_birth: dateOfBirth,
-      billing_address: '',
-      shipping_address: '',
-      tax_id: '',
-      status: 'active',
     };
 
     try {

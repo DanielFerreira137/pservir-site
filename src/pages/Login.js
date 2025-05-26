@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 function Login() {
   const { login } = useAuth();
   const [forgotPass, setForgotPass] = useState(false);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,13 +20,13 @@ function Login() {
     setSuccess('');
 
     try {
-      const response = await api.post('/auth/login', { username, password });
+      const response = await api.post('/auth/login', { email, password });
 
       const { token, ...user } = response.data;
 
       if (user && token) {
         login(user, token);
-        setSuccess(`Bem-vindo, ${user.username}!`);
+        setSuccess(`Bem-vindo, ${user.name}!`);
         setTimeout(() => {
           window.location.href = '/';
         }, 2000);
@@ -65,8 +65,8 @@ function Login() {
                   {success && <div className="alert alert-success mb-3">{success}</div>}
 
                   <div className="mb-4">
-                    <label className="label-title">USERNAME *</label>
-                    <input name="username" required className="form-control" placeholder="Your Username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+                    <label className="label-title">Email *</label>
+                    <input name="email" required className="form-control" placeholder="Your Email" type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                   <div className="mb-4">
                     <label className="label-title">PASSWORD *</label>
