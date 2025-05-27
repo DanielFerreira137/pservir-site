@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Collapse, Dropdown } from "react-bootstrap";
-
+import { useLocation } from "react-router-dom";
 //Component
 import ClientsSlider from "../components/Home/ClientsSlider";
 import NewsLetter from "../components/NewsLetter";
@@ -13,38 +13,6 @@ import ShopSidebar from "../elements/ShopSidebar";
 //Images
 import book16 from "./../assets/images/books/grid/book16.jpg";
 import book12 from "./../assets/images/books/grid/book12.jpg";
-import book14 from "./../assets/images/books/grid/book14.jpg";
-import book15 from "./../assets/images/books/grid/book15.jpg";
-import book10 from "./../assets/images/books/grid/book10.jpg";
-import book11 from "./../assets/images/books/grid/book11.jpg";
-
-const lableBlogData = [
-  { name: "Architecture" },
-  { name: "Art" },
-  { name: "Action" },
-  { name: "Biography & Autobiography" },
-  { name: "Body, Mind & Spirit" },
-  { name: "Business & Economics" },
-  { name: "Children Fiction" },
-  { name: "Children Non-Fiction" },
-  { name: "Comics & Graphic Novels" },
-  { name: "Cooking" },
-  { name: "Crafts & Hobbies" },
-  { name: "Design" },
-  { name: "Drama" },
-  { name: "Education" },
-  { name: "Family & Relationships" },
-  { name: "Fiction" },
-  { name: "Foreign Language Study" },
-  { name: "Games" },
-  { name: "Gardening" },
-  { name: "Health & Fitness" },
-  { name: "History" },
-  { name: "House & Home" },
-  { name: "Humor" },
-  { name: "Literary Collections" },
-  { name: "Mathematics" },
-];
 
 const cardDetials = [
   {
@@ -63,41 +31,37 @@ const cardDetials = [
     price1: "54.78",
     price2: "70.00",
   },
-  {
-    image: book14,
-    title: "A Heavy Lift",
-    subtitle1: "RACING",
-    subtitle2: "DRAMA",
-    price1: "25.18",
-    price2: "68.00",
-  },
-  {
-    image: book15,
-    title: "Terrible Madness",
-    subtitle1: "SPORTS",
-    subtitle2: "GAME",
-    price1: "25.30",
-    price2: "38.00",
-  },
-  {
-    image: book11,
-    title: "ALL GOOD NEWS",
-    subtitle1: "DRAMA",
-    subtitle2: "COMEDY",
-    price1: "40.78",
-    price2: "68.00",
-  },
-  {
-    image: book10,
-    title: "Emily The Back",
-    subtitle1: "DRAMA",
-    subtitle2: "SIRIAL",
-    price1: "54.78",
-    price2: "63.00",
-  },
 ];
 
 function BooksListViewSidebar() {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const [showFilters, setShowFilters] = useState(false);
+
+  const filtersFromURL = {
+    authors: searchParams.get("author_product")?.split(",") || [],
+    tags: searchParams.get("tags")?.split(",") || [],
+    publishers: searchParams.get("publisher_product")?.split(",") || [],
+    years: searchParams.get("date_product")?.split(",") || [],
+    languages: searchParams.get("language")?.split(",") || [],
+    price_min: parseFloat(searchParams.get("price_min")) || 0,
+    price_max: parseFloat(searchParams.get("price_max")) || 1000,
+    promotion: searchParams.get("promotion") || "",
+  };
+  console.log("Filters from URL:", filtersFromURL);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const queryString = location.search;
+    fetch(`http://localhost:8090/products/filter${queryString}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data.data);
+        console.log("Produtos carregados:", data);
+      })
+      .catch((err) => console.error("Erro ao carregar produtos:", err));
+  }, [location.search]);
   const [accordBtn, setAccordBtn] = useState();
   const [selectBtn, setSelectBtn] = useState("Newest");
   return (
@@ -107,12 +71,15 @@ function BooksListViewSidebar() {
           <div className="container">
             <div className="row ">
               <div className="col-xl-3">
-                <ShopSidebar />
+                <ShopSidebar
+                  initialFilters={filtersFromURL}
+                  currentLink="/books-list-view-sidebar"
+                />
               </div>
 
               <div className="col-xl-9">
                 <div className="d-flex justify-content-between align-items-center">
-                  <h4 className="title">Books</h4>
+                  <h4 className="title">Livros</h4>
                   <Link to={"#"} className="btn btn-primary panel-btn">
                     Filter
                   </Link>
@@ -186,189 +153,137 @@ function BooksListViewSidebar() {
                     </div>
                   </div>
                   <div className="category">
-                    <div className="filter-category">
-                      <Link
-                        to={"#"}
-                        data-bs-toggle="collapse"
-                        onClick={() => setAccordBtn(!accordBtn)}
-                      >
-                        <i className="fas fa-list me-2"></i>
-                        Categories
-                      </Link>
-                    </div>
-                    <div className="form-group">
-                      <i className="fas fa-sort-amount-down me-2 text-secondary"></i>
-                      <Dropdown>
-                        <Dropdown.Toggle className="i-false">
-                          {selectBtn}{" "}
-                          <i className="ms-4 font-14 fa-solid fa-caret-down" />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                          <Dropdown.Item onClick={() => setSelectBtn("Newest")}>
-                            Newest
-                          </Dropdown.Item>
-                          <Dropdown.Item onClick={() => setSelectBtn("1 Days")}>
-                            1 Days
-                          </Dropdown.Item>
-                          <Dropdown.Item onClick={() => setSelectBtn("2 Week")}>
-                            2 Week
-                          </Dropdown.Item>
-                          <Dropdown.Item onClick={() => setSelectBtn("3 Week")}>
-                            3 Weeks
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => setSelectBtn("1 Month")}
-                          >
-                            1 Month
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </div>
+                    <div className="filter-category"></div>
                   </div>
                 </div>
                 <Collapse in={accordBtn} className="acod-content">
                   <div>
-                    <div className="widget widget_services style-2">
-                      {lableBlogData.map((item, ind) => (
-                        <div className="form-check search-content" key={ind}>
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            value=""
-                            id={`productCheckBox${ind + 1}`}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor={`productCheckBox${ind + 1}`}
-                          >
-                            {item.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
+                    <div className="widget widget_services style-2"></div>
                   </div>
                 </Collapse>
-                {cardDetials.map((data, i) => (
-                  <div className="dz-shop-card style-2">
-                    <div className="dz-media">
-                      <img src={data.image} alt="book" />
-                    </div>
-                    <div className="dz-content">
-                      <div className="dz-header">
-                        <div>
-                          <ul className="dz-tags">
-                            <li>
-                              <Link to={"#"}>{data.subtitle1},</Link>
-                            </li>
-                            <li>
-                              <Link to={"#"}>{data.subtitle2},</Link>
-                            </li>
-                            <li>
-                              <Link to={"#"}>COMEDY</Link>
-                            </li>
-                          </ul>
-                          <h4 className="title mb-0">
-                            <Link to={"books-list-view-sidebar"}>
-                              {data.title}
-                            </Link>
-                          </h4>
+                {products &&
+                  products.map((data, i) => (
+                    <div className="col-md-12 col-sm-12">
+                      <div className="dz-shop-card style-2">
+                        <div className="dz-media">
+                          <img src={data.image} alt="book"></img>
                         </div>
-                        <div className="price">
-                          <span className="price-num text-primary">
-                            ${data.price1}
-                          </span>
-                          <del>${data.price2}</del>
-                        </div>
-                      </div>
-
-                      <div className="dz-body">
-                        <div className="dz-rating-box">
-                          <div>
-                            <p className="dz-para">
-                              Lorem Ipsum is simply dummy text of the printing
-                              and typesetting industry. Lorem Ipsum has been the
-                              industry's standard dummy text ever since the
-                              1500s, when an unknown printer took a galley of
-                              type.{" "}
-                            </p>
+                        <div className="dz-content">
+                          <div className="dz-header">
                             <div>
-                              <Link to={"/pricing"} className="badge me-1">
-                                Get 20% Discount for today
-                              </Link>
-                              <Link to={"/pricing"} className="badge me-1">
-                                50% OFF Discount
-                              </Link>
-                              <Link
-                                to={"/pricing"}
-                                className="badge next-badge"
-                              >
-                                See 2+ promos
-                              </Link>
+                              <ul className="dz-tags">
+                                {data.tags && data.tags.length > 0 ? (
+                                  data.tags.map((tag, index) => (
+                                    <li key={index}>
+                                      <Link to="#">
+                                        {tag.toUpperCase()}
+                                        {index < data.tags.length - 1 && ","}
+                                      </Link>
+                                    </li>
+                                  ))
+                                ) : (
+                                  <li>
+                                    <Link to={"/books-list"}>No Tags</Link>
+                                  </li>
+                                )}
+                              </ul>
+                              <h4 className="title mb-0">
+                                <Link to={"/books-list"}>{data.title}</Link>
+                              </h4>
+                            </div>
+                            <div className="price">
+                              {data.promotion.promotionId !== 0 ? (
+                                <>
+                                  <span className="price-num text-primary">
+                                    ${data.promotion.priceWithDiscount}
+                                  </span>
+                                  <del>${data.price}</del>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="price-num text-primary">
+                                    ${data.price}
+                                  </span>
+                                </>
+                              )}
                             </div>
                           </div>
-                          <div className="review-num">
-                            <h4>4.0</h4>
-                            <ul className="dz-rating">
-                              <li>
-                                <i className="flaticon-star text-yellow"></i>
-                              </li>
-                              <li>
-                                <i className="flaticon-star text-yellow"></i>
-                              </li>
-                              <li>
-                                <i className="flaticon-star text-yellow"></i>
-                              </li>
-                              <li>
-                                <i className="flaticon-star text-yellow"></i>
-                              </li>
-                              <li>
-                                <i className="flaticon-star text-muted"></i>
-                              </li>
-                            </ul>
-                            <span>
-                              <Link to={"#"}> 235 Reviews</Link>
-                            </span>
-                          </div>
-                        </div>
-                        <div className="rate">
-                          <ul className="book-info">
-                            <li>
-                              <span>Writen by</span>Kevin Smiley
-                            </li>
-                            <li>
-                              <span>Publisher</span>Printarea Studios
-                            </li>
-                            <li>
-                              <span>Year</span>2019
-                            </li>
-                          </ul>
-                          <div className="d-flex">
-                            <Link
-                              to={"/shop-cart"}
-                              className="btn btn-secondary btnhover btnhover2"
-                            >
-                              <i className="flaticon-shopping-cart-1 m-r10"></i>{" "}
-                              Add to cart
-                            </Link>
-                            <div className="bookmark-btn style-1">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="flexCheckDefault1"
-                              />
-                              <label
-                                className="form-check-label"
-                                for="flexCheckDefault1"
-                              >
-                                <i className="flaticon-heart"></i>
-                              </label>
+
+                          <div className="dz-body">
+                            <div className="dz-rating-box">
+                              <div>
+                                <p className="dz-para">
+                                  {data.description ||
+                                    "No description available."}
+                                </p>
+                                <div>
+                                  {data.promotion.promotionId !== 0 ? (
+                                    <>
+                                      <Link
+                                        to={"/pricing"}
+                                        className="badge me-1"
+                                      >
+                                        Produto em {data.promotion.discount} de
+                                        desconto
+                                      </Link>
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="review-num">
+                                <h4>4.0</h4>
+                                <ul className="dz-rating">
+                                  <li>
+                                    <i className="flaticon-star text-yellow"></i>
+                                  </li>
+                                  <li>
+                                    <i className="flaticon-star text-yellow"></i>
+                                  </li>
+                                  <li>
+                                    <i className="flaticon-star text-yellow"></i>
+                                  </li>
+                                  <li>
+                                    <i className="flaticon-star text-yellow"></i>
+                                  </li>
+                                  <li>
+                                    <i className="flaticon-star text-muted"></i>
+                                  </li>
+                                </ul>
+                                <span>
+                                  <Link to={"#"}> 235 Reviews</Link>
+                                </span>
+                              </div>
+                            </div>
+                            <div className="rate">
+                              <ul className="book-info">
+                                <li>
+                                  <span>Writen by</span>Kevin Smiley
+                                </li>
+                                <li>
+                                  <span>Publisher</span>Printarea Studios
+                                </li>
+                                <li>
+                                  <span>Year</span>2019
+                                </li>
+                              </ul>
+                              <div className="d-flex">
+                                <Link
+                                  to={"/shop-cart"}
+                                  className="btn btn-secondary btnhover btnhover2"
+                                >
+                                  <i className="flaticon-shopping-cart-1 m-r10"></i>{" "}
+                                  Add to cart
+                                </Link>
+                                
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
 
                 <div className="row page">
                   <div className="col-md-6">
@@ -410,19 +325,6 @@ function BooksListViewSidebar() {
             </div>
           </div>
         </div>
-        <div className="bg-white py-5">
-          <div className="container">
-            <ClientsSlider />
-          </div>
-        </div>
-        <section className="content-inner">
-          <div className="container">
-            <div className="row sp15">
-              <CounterSection />
-            </div>
-          </div>
-        </section>
-        <NewsLetter />
       </div>
     </>
   );

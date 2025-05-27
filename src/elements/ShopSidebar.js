@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Accordion } from "react-bootstrap";
 import SlideDragable from "./SlideDragable";
-
+import { useNavigate, useLocation } from "react-router-dom";
 // API imports
 import { getallAuthors } from "../api/routes/products/getallAuthors";
 import { getallLanguages } from "../api/routes/products/getallLanguages";
@@ -26,12 +26,14 @@ const languageMap = {
   ar: "Árabe",
 };
 
-const ShopSidebar = () => {
+const ShopSidebar = ({currentLink=""}) => {
+  const navigate = useNavigate();
   const [allAuthors, setAllAuthors] = useState([]);
   const [allPublishers, setAllPublishers] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [allYears, setAllYears] = useState([]);
-  const [minPriceAndMaxPrice, setMinPriceAndMaxPrice] = useState({ minPrice: 0, maxPrice: 1000 });
+  const [minPriceAndMaxPrice, setMinPriceAndMaxPrice] = useState({ minPrice: null, maxPrice: null });
+
   const [allLanguages, setAllLanguages] = useState([]);
   const [bydiscount, setByDiscount] = useState([]);
   const [bydate, setByDate] = useState([]);
@@ -47,7 +49,16 @@ const ShopSidebar = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [authors, languages, publishers, tags, years, priceRange, byDateRes, byDiscountRes] = await Promise.all([
+        const [
+          authors,
+          languages,
+          publishers,
+          tags,
+          years,
+          priceRange,
+          byDateRes,
+          byDiscountRes,
+        ] = await Promise.all([
           getallAuthors(),
           getallLanguages(),
           getallPublishers(),
@@ -63,6 +74,16 @@ const ShopSidebar = () => {
         setAllPublishers(publishers);
         setAllTags(tags);
         setAllYears(years);
+        if (
+          typeof priceRange.minPrice === "number" &&
+          typeof priceRange.maxPrice === "number"
+        ) {
+          if (priceRange.minPrice === priceRange.maxPrice) {
+            priceRange.maxPrice += 1;
+          }
+          setMinPriceAndMaxPrice(priceRange);
+        }
+        
         setMinPriceAndMaxPrice(priceRange);
         setByDate(byDateRes);
         setByDiscount(byDiscountRes);
@@ -74,25 +95,37 @@ const ShopSidebar = () => {
   }, []);
 
   const handleCheckboxChange = (value, selectedList, setSelectedList) => {
-    setSelectedList(prev =>
+    setSelectedList((prev) =>
       prev.includes(value)
-        ? prev.filter(item => item !== value)
+        ? prev.filter((item) => item !== value)
         : [...prev, value]
     );
   };
 
   const handleSearch = () => {
     const filtros = {
-      tags: selectedTags,
-      publishers: selectedPublishers,
-      authors: selectedAuthors,
-      years: selectedYears,
-      languages: selectedLanguages,
+      author_product: selectedAuthors.join(","),
+      tags: selectedTags.join(","),
+      publisher_product: selectedPublishers.join(","),
+      date_product: selectedYears.join(","),
+      language: selectedLanguages
+        .map((lang) => languageMap[lang] || lang)
+        .join(","),
       promotion: selectedPromotion,
-      priceRange: minPriceAndMaxPrice,
+      price_min: minPriceAndMaxPrice.minPrice,
+      price_max: minPriceAndMaxPrice.maxPrice,
     };
-    console.log("Filtros aplicados:", filtros);
-    // Aqui podes redirecionar, fazer fetch ou atualizar o estado global
+
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filtros).forEach(([key, value]) => {
+      if (value && value.length > 0) {
+        queryParams.append(key, value);
+      }
+    });
+
+    const url = `${currentLink}?${queryParams.toString()}`;
+    navigate(url); // muda o URL sem recarregar a página
   };
 
   return (
@@ -109,15 +142,27 @@ const ShopSidebar = () => {
           <Accordion.Body>
             <div className="range-slider style-1">
               <div id="slider-tooltips">
-                <SlideDragable
-                  minPrice={minPriceAndMaxPrice.minPrice}
-                  maxPrice={minPriceAndMaxPrice.maxPrice}
-                  choosedMinPrice={minPriceAndMaxPrice.minPrice}
-                  choosedMaxPrice={minPriceAndMaxPrice.maxPrice}
-                  onChange={({ min, max }) => {
-                    console.log("Preço selecionado:", min, max);
-                  }}
-                />
+                {minPriceAndMaxPrice.minPrice !== null &&
+                  minPriceAndMaxPrice.maxPrice !== null && (
+                    <SlideDragable
+                      minPrice={minPriceAndMaxPrice.minPrice}
+                      maxPrice={minPriceAndMaxPrice.maxPrice}
+                      choosedMinPrice={minPriceAndMaxPrice.minPrice}
+                      choosedMaxPrice={minPriceAndMaxPrice.maxPrice}
+                      onChange={({ min, max }) => {
+                        if (
+                          min !== minPriceAndMaxPrice.minPrice ||
+                          max !== minPriceAndMaxPrice.maxPrice
+                        ) {
+                          setMinPriceAndMaxPrice({
+                            minPrice: min,
+                            maxPrice: max,
+                          });
+                        }
+                      }}
+                      
+                    />
+                  )}
               </div>
             </div>
           </Accordion.Body>
@@ -138,7 +183,10 @@ const ShopSidebar = () => {
                     checked={selectedPromotion === String(item.promotionId)}
                     onChange={(e) => setSelectedPromotion(e.target.value)}
                   />
-                  <label className="form-check-label" htmlFor={`promotionRadio-${ind}`}>
+                  <label
+                    className="form-check-label"
+                    htmlFor={`promotionRadio-${ind}`}
+                  >
                     {item.title} - {item.discount}%
                   </label>
                 </div>
@@ -159,9 +207,14 @@ const ShopSidebar = () => {
                     id={`tagCheck-${ind}`}
                     value={tag}
                     checked={selectedTags.includes(tag)}
-                    onChange={(e) => handleCheckboxChange(tag, selectedTags, setSelectedTags)}
+                    onChange={(e) =>
+                      handleCheckboxChange(tag, selectedTags, setSelectedTags)
+                    }
                   />
-                  <label className="form-check-label" htmlFor={`tagCheck-${ind}`}>
+                  <label
+                    className="form-check-label"
+                    htmlFor={`tagCheck-${ind}`}
+                  >
                     {tag}
                   </label>
                 </div>
@@ -181,10 +234,21 @@ const ShopSidebar = () => {
                     type="checkbox"
                     id={`publisherCheck-${ind}`}
                     value={item.publisher_product}
-                    checked={selectedPublishers.includes(item.publisher_product)}
-                    onChange={() => handleCheckboxChange(item.publisher_product, selectedPublishers, setSelectedPublishers)}
+                    checked={selectedPublishers.includes(
+                      item.publisher_product
+                    )}
+                    onChange={() =>
+                      handleCheckboxChange(
+                        item.publisher_product,
+                        selectedPublishers,
+                        setSelectedPublishers
+                      )
+                    }
                   />
-                  <label className="form-check-label" htmlFor={`publisherCheck-${ind}`}>
+                  <label
+                    className="form-check-label"
+                    htmlFor={`publisherCheck-${ind}`}
+                  >
                     {item.publisher_product}
                   </label>
                 </div>
@@ -205,9 +269,18 @@ const ShopSidebar = () => {
                     id={`authorCheck-${ind}`}
                     value={item.author_product}
                     checked={selectedAuthors.includes(item.author_product)}
-                    onChange={() => handleCheckboxChange(item.author_product, selectedAuthors, setSelectedAuthors)}
+                    onChange={() =>
+                      handleCheckboxChange(
+                        item.author_product,
+                        selectedAuthors,
+                        setSelectedAuthors
+                      )
+                    }
                   />
-                  <label className="form-check-label" htmlFor={`authorCheck-${ind}`}>
+                  <label
+                    className="form-check-label"
+                    htmlFor={`authorCheck-${ind}`}
+                  >
                     {item.author_product}
                   </label>
                 </div>
@@ -228,9 +301,18 @@ const ShopSidebar = () => {
                     id={`yearCheck-${ind}`}
                     value={year}
                     checked={selectedYears.includes(year)}
-                    onChange={() => handleCheckboxChange(year, selectedYears, setSelectedYears)}
+                    onChange={() =>
+                      handleCheckboxChange(
+                        year,
+                        selectedYears,
+                        setSelectedYears
+                      )
+                    }
                   />
-                  <label className="form-check-label" htmlFor={`yearCheck-${ind}`}>
+                  <label
+                    className="form-check-label"
+                    htmlFor={`yearCheck-${ind}`}
+                  >
                     {year}
                   </label>
                 </div>
@@ -251,9 +333,18 @@ const ShopSidebar = () => {
                     id={`languageCheck-${ind}`}
                     value={item.language}
                     checked={selectedLanguages.includes(item.language)}
-                    onChange={() => handleCheckboxChange(item.language, selectedLanguages, setSelectedLanguages)}
+                    onChange={() =>
+                      handleCheckboxChange(
+                        item.language,
+                        selectedLanguages,
+                        setSelectedLanguages
+                      )
+                    }
                   />
-                  <label className="form-check-label" htmlFor={`languageCheck-${ind}`}>
+                  <label
+                    className="form-check-label"
+                    htmlFor={`languageCheck-${ind}`}
+                  >
                     {languageMap[item.language] || item.language}
                   </label>
                 </div>
@@ -265,10 +356,17 @@ const ShopSidebar = () => {
 
       <div className="row filter-buttons">
         <div>
-          <button className="btn btn-secondary btnhover mt-4 d-block" onClick={handleSearch} style={{ width: "100%" }}>
+          <button
+            className="btn btn-secondary btnhover mt-4 d-block"
+            onClick={handleSearch}
+            style={{ width: "100%" }}
+          >
             Procurar
           </button>
-          <Link to="#" className="btn btn-outline-secondary btnhover mt-3 d-block">
+          <Link
+            to="#"
+            className="btn btn-outline-secondary btnhover mt-3 d-block"
+          >
             Limpar Filtros
           </Link>
         </div>
