@@ -170,13 +170,13 @@ function BooksGridViewSidebar() {
                           <div className="price mb-2">
                             {data.promotion.promotionId !== 0 ? (
                               <>
-                                <span className="price-num ms-2" style={{ color: "#eaa451" , fontWeight: "bold",fontSize: "1.3rem"}}>
+                                <span className="price-num ms-2" style={{ color: "#4484d4" , fontWeight: "bold",fontSize: "1.3rem"}}>
                                   {data.promotion.priceWithDiscount} € 
                                 </span>
                                 <del className="ms-2" style={{ fontSize: "1.2rem"}}>{data.price} €</del> 
                               </>
                             ) : (
-                              <span className="price-num ms-2" style={{ color: "#eaa451" , fontWeight: "bold",fontSize: "1.3rem"}}>
+                              <span className="price-num ms-2" style={{ color: "#4484d4" , fontWeight: "bold",fontSize: "1.3rem"}}>
                                 {data.price} €
                               </span>
                             )}

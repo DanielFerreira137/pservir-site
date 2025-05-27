@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 //images
 
-import logo from "./../assets/images/logo.png";
+import logo from "./../assets/images/simbolo_publicadora.png";
 import profile from "./../assets/images/profile1.jpg";
 import pic1 from "./../assets/images/books/small/pic1.jpg";
 import pic2 from "./../assets/images/books/small/pic2.jpg";
@@ -57,14 +57,14 @@ function Header() {
     <header className="site-header mo-left header style-1">
       <div className="header-info-bar">
         <div className="container clearfix">
-          {/* <!-- Website Logo --> */}
-          <div className="logo-header logo-dark">
-            <Link to={"/"}>
-              <img src={logo} alt="logo" />
-            </Link>
-          </div>
+        
+                <div className="logo-header logo-dark">
+                <Link to={"/"}>
+                  <img src={logo} alt="logo" style={{ padding: '10px' }} />
+                </Link>
+                </div>
 
-          {/* <!-- EXTRA NAV --> */}
+                {/* <!-- EXTRA NAV --> */}
           <div className="extra-nav">
             <div className="extra-cell">
               <ul className="navbar-nav header-right">
@@ -366,14 +366,14 @@ function Header() {
       >
         <div className="main-bar clearfix">
           <div className="container clearfix">
-            {/* <!-- Website Logo --> */}
-            <div className="logo-header logo-dark">
-              <Link to={"#"}>
-                <img src={logo} alt="logo" />
-              </Link>
-            </div>
+           
+                  <div className="logo-header logo-dark">
+                    <Link to={"#"}>
+                    <img src={logo} alt="logo" />
+                    </Link>
+                  </div>
 
-            {/* <!-- Nav Toggle Button --> */}
+                  {/* <!-- Nav Toggle Button --> */}
             <button
               className={`navbar-toggler collapsed navicon justify-content-end ${
                 sidebarOpen ? "open" : ""
