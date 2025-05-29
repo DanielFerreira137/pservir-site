@@ -50,7 +50,10 @@ function BooksGridViewSidebar() {
           <div className="container">
             <div className="row ">
               <div className="col-xl-3">
-                <ShopSidebar initialFilters={filtersFromURL} currentLink="/books-grid-view-sidebar"/>
+                <ShopSidebar
+                  initialFilters={filtersFromURL}
+                  currentLink="/books-grid-view-sidebar"
+                />
               </div>
 
               <div className="col-xl-9">
@@ -137,11 +140,23 @@ function BooksGridViewSidebar() {
                 <div className="row book-grid-row">
                   {products.map((data, i) => (
                     <div className="col-book style-2" key={i}>
-                     <div className="dz-shop-card style-1  d-flex flex-column" style={{ height: "95%" }}>
-
-                        <div className="dz-media">
-                          <img src={data.image} alt="book" />
+                      <div
+                        className="dz-shop-card style-1  d-flex flex-column"
+                        style={{ height: "95%" }}
+                      >
+                        <div className="dz-media position-relative">
+                          <img
+                            src={data.image}
+                            alt="book"
+                            className="w-100 h-100 object-cover"
+                          />
+                          {data.promotion?.promotionId !== 0 && (
+                            <div className="badge text-white position-absolute top-0 start-0 m-2 fw-bold">
+                              -{data.promotion.discount}
+                            </div>
+                          )}
                         </div>
+
                         <div className="bookmark-btn style-2">
                           <input
                             className="form-check-input"
@@ -170,13 +185,32 @@ function BooksGridViewSidebar() {
                           <div className="price mb-2">
                             {data.promotion.promotionId !== 0 ? (
                               <>
-                                <span className="price-num ms-2" style={{ color: "#4484d4" , fontWeight: "bold",fontSize: "1.3rem"}}>
-                                  {data.promotion.priceWithDiscount} € 
+                                <span
+                                  className="price-num ms-2"
+                                  style={{
+                                    color: "#4484d4",
+                                    fontWeight: "bold",
+                                    fontSize: "1.3rem",
+                                  }}
+                                >
+                                  {data.promotion.priceWithDiscount} €
                                 </span>
-                                <del className="ms-2" style={{ fontSize: "1.2rem"}}>{data.price} €</del> 
+                                <del
+                                  className="ms-2"
+                                  style={{ fontSize: "1.2rem" }}
+                                >
+                                  {data.price} €
+                                </del>
                               </>
                             ) : (
-                              <span className="price-num ms-2" style={{ color: "#4484d4" , fontWeight: "bold",fontSize: "1.3rem"}}>
+                              <span
+                                className="price-num ms-2"
+                                style={{
+                                  color: "#4484d4",
+                                  fontWeight: "bold",
+                                  fontSize: "1.3rem",
+                                }}
+                              >
                                 {data.price} €
                               </span>
                             )}

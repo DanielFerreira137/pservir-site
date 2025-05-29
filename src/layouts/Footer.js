@@ -35,24 +35,7 @@ function Footer({footerChange, logoImage}){
 	return(
 		<>
 			<footer className={`site-footer ${footerChange}`}>				
-				<div className="footer-category">
-					<div className="container">
-						<div className="category-toggle">
-							<Link to={"#"} className={`toggle-btn ${accordBtn ? 'active' : ''}`}
-								onClick={() => setAccordBtn(!accordBtn)}
-							>Books categories</Link>
-							<div className="toggle-items row">
-								<Collapse in={accordBtn} className="footer-col-book">
-									<ul>
-										{accordList.map((data, ind)=>(
-											<li key={ind}><Link to={"/books-grid-view"}>{data.name}</Link></li>
-										))}
-									</ul>
-								</Collapse>
-							</div>
-						</div>
-					</div>
-				</div>				
+							
 				<div className="footer-top">
 					<div className="container">
 						<div className="row">

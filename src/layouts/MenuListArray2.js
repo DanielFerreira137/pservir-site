@@ -1,112 +1,34 @@
 export const MenuListArray2 = [
     {
-        title: 'Home',	
-        classsChange: 'sub-menu-down',		
-        content: [
-            {
-                title: 'Home-1',
-                to: '/',					
-            },
-            {
-                title: 'Home-2',
-                to: '/index-2',
-                
-            },            
-            
-        ],
+        title: 'Página Inicial',	
+        to: '/',
     },
     {   
-        title: 'About Us',	
-        to: '/about-us',
-    },
-    {
-        title: 'Pages',
-        classsChange: 'sub-menu-down',        
-        content: [            
-            {
-                title: 'My Profile',
-                to: '/my-profile',
-            },
-            {
-                title: 'Services',
-                to: '/services',
-            },
-            {
-                title: "FAQ's",
-                to: '/faq',
-            },
-            {
-                title: 'Help Desk',
-                to: '/help-desk',
-            },
-            {
-                title: 'Coming Soon',
-                to: '/coming-soon',
-            },
-            {
-                title: 'Pricing',
-                to: '/pricing',
-            },
-            {
-                title: 'Privacy Policy',
-                to: '/privacy-policy',
-            },
-            {
-                title: 'Under Construction',
-                to: '/under-construction',
-            },
-            {
-                title: 'Error 404',
-                to: '/error-404',
-            },
-        ],
-    },
-    
-    {
-        title: 'Shop',
+        title: 'Livros', 
         classsChange: 'sub-menu-down',
-        content : [
+        content: [
             {
-                title: 'Shop Grid',
-                to: '/books-grid-view',
-            },
-            {
-                title: 'Shop Grid Sidebar',
+                title: 'Livros em Destaque',
                 to: '/books-grid-view-sidebar',
             },
             {
-                title: 'Shop List',
-                to: '/books-list',
+                title: 'Livros Mais Vendidos',
+                to: '/books-grid-view-sidebar',
             },
             {
-                title: 'Shop List Sidebar',
-                to: '/books-list-view-sidebar',
+                title: 'Novidades',
+                to: '/books-grid-view-sidebar',
             },
             {
-                title: 'Shop Detail',
-                to: '/books-detail',
+                title: 'Livros Populares',
+                to: '/books-grid-view-sidebar',
             },
-            {
-                title: 'Cart',
-                to: '/shop-cart',
-            },
-            {
-                title: 'Checkout',
-                to: '/shop-checkout',
-            },
-            {
-                title: 'Wishlist',
-                to: '/wishlist',
-            },
-            {
-                title: 'Login',
-                to: '/shop-login',
-            },
-            {
-                title: 'Registration',
-                to: '/shop-registration',
-            },
-        ],
+        ],	
+        to: '/books-grid-view-sidebar',
+    },
+    {
+        title: 'Oportunidades',	
+        to: '/',
     },
     {
         title: 'Blog',
@@ -131,8 +53,16 @@ export const MenuListArray2 = [
             
         ],
     },
+    {   
+        title: 'Sobre Nós', 	
+        to: '/about-us',
+    },
+    
     {
-        title: 'Contact Us',	
+        title: 'Contactos',	
         to: '/contact-us',
     },
+   
+   
+   
 ]

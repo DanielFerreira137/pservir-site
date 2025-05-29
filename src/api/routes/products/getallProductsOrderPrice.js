@@ -1,10 +1,9 @@
 import api from "../../api";
 
-export async function getbydiscount() {
+export async function getallProductsOrderPrice() {
   try {
-    const response = await api.get("/products/promotions/by-discount");
+    const response = await api.get("/products/filter?sort_by=price&order=asc");
 
-   console.log("Response:", response.data);
     return response.data;
   } catch (err) {
     console.error("Erro:", err);

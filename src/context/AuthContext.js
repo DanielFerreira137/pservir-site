@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
         try {
           const userData = await fetchCustomerInfo();
           setUser(userData);
-          console.log("User data:", userData);
+       
         } catch (err) {
           console.error("Erro ao buscar info do user:", err);
           destroyCookie(null, 'token');

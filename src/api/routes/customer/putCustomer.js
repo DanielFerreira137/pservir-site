@@ -14,10 +14,10 @@ import api from "../../api";
  */
 export async function putCustomer(data) {
   try {
-    console.log("Dados a enviar:", data);
+  
     const response = await api.put("/customers/updateProfile", data);
 
-    console.log("Resposta da API:", response.data);
+   
     return response.data;
   } catch (err) {
     console.error("Erro:", err);

@@ -82,7 +82,7 @@ function TestimonialSlider() {
         }}
         onSwiper={(swiper) => {
           // Se quiser guardar ou fazer debug da instância:
-          console.log("Swiper está pronto:", swiper);
+          
         }}
         breakpoints={{
           1200: { slidesPerView: 5 },

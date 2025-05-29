@@ -1,10 +1,10 @@
 import api from "../../api";
 
-export async function getbydiscount() {
+export async function getallProductsRecemLancados() {
   try {
-    const response = await api.get("/products/promotions/by-discount");
+    const response = await api.get("/products/filter?sort_by=date_product&order=dsc");
 
-   console.log("Response:", response.data);
+   
     return response.data;
   } catch (err) {
     console.error("Erro:", err);

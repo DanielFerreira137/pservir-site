@@ -191,7 +191,7 @@ function MyProfile() {
                         { label: "País", name: "pais", type: "text" },
                         { label: "NIF", name: "nif", type: "text" },
                         { label: "Data de Nascimento", name: "data_nascimento", type: "date" },
-                        { label: "Palavra-passe", name: "palavra_passe", type: "password" },
+                      
                       ].map((field, i) => (
                         <div className="col-lg-6 col-md-6" key={i}>
                           <div className="mb-3">

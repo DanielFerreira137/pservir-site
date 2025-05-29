@@ -49,7 +49,7 @@ function BooksListViewSidebar() {
     price_max: parseFloat(searchParams.get("price_max")) || 1000,
     promotion: searchParams.get("promotion") || "",
   };
-  console.log("Filters from URL:", filtersFromURL);
+ 
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ function BooksListViewSidebar() {
       .then((res) => res.json())
       .then((data) => {
         setProducts(data.data);
-        console.log("Produtos carregados:", data);
+       
       })
       .catch((err) => console.error("Erro ao carregar produtos:", err));
   }, [location.search]);
@@ -165,9 +165,19 @@ function BooksListViewSidebar() {
                   products.map((data, i) => (
                     <div className="col-md-12 col-sm-12">
                       <div className="dz-shop-card style-2">
-                        <div className="dz-media">
-                          <img src={data.image} alt="book"></img>
+                        <div className="dz-media position-relative">
+                          <img
+                            src={data.image}
+                            alt="book"
+                            className="w-100 h-100 object-cover"
+                          />
+                          {data.promotion?.promotionId !== 0 && (
+                            <div className="badge text-white position-absolute top-0 start-0 m-2 fw-bold">
+                              -{data.promotion.discount}
+                            </div>
+                          )}
                         </div>
+
                         <div className="dz-content">
                           <div className="dz-header">
                             <div>
@@ -195,14 +205,14 @@ function BooksListViewSidebar() {
                               {data.promotion.promotionId !== 0 ? (
                                 <>
                                   <span className="price-num text-primary">
-                                    ${data.promotion.priceWithDiscount}
+                                   {data.promotion.priceWithDiscount} €
                                   </span>
-                                  <del>${data.price}</del>
+                                  <del>{data.price} €</del>
                                 </>
                               ) : (
                                 <>
                                   <span className="price-num text-primary">
-                                    ${data.price}
+                                    {data.price} €
                                   </span>
                                 </>
                               )}
@@ -233,39 +243,19 @@ function BooksListViewSidebar() {
                                 </div>
                               </div>
                               <div className="review-num">
-                                <h4>4.0</h4>
-                                <ul className="dz-rating">
-                                  <li>
-                                    <i className="flaticon-star text-yellow"></i>
-                                  </li>
-                                  <li>
-                                    <i className="flaticon-star text-yellow"></i>
-                                  </li>
-                                  <li>
-                                    <i className="flaticon-star text-yellow"></i>
-                                  </li>
-                                  <li>
-                                    <i className="flaticon-star text-yellow"></i>
-                                  </li>
-                                  <li>
-                                    <i className="flaticon-star text-muted"></i>
-                                  </li>
-                                </ul>
-                                <span>
-                                  <Link to={"#"}> 235 Reviews</Link>
-                                </span>
+                             
                               </div>
                             </div>
                             <div className="rate">
                               <ul className="book-info">
                                 <li>
-                                  <span>Writen by</span>Kevin Smiley
+                                  <span>Escrito Por</span>{data.author}
                                 </li>
                                 <li>
-                                  <span>Publisher</span>Printarea Studios
+                                  <span>Editado Por</span>{data.publisher}
                                 </li>
                                 <li>
-                                  <span>Year</span>2019
+                                  <span>Ano</span>{data.year}
                                 </li>
                               </ul>
                               <div className="d-flex">
@@ -276,7 +266,6 @@ function BooksListViewSidebar() {
                                   <i className="flaticon-shopping-cart-1 m-r10"></i>{" "}
                                   Add to cart
                                 </Link>
-                                
                               </div>
                             </div>
                           </div>

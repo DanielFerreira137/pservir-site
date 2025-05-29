@@ -26,14 +26,20 @@ const languageMap = {
   ar: "Árabe",
 };
 
-const ShopSidebar = ({currentLink=""}) => {
+const ShopSidebar = ({ currentLink = "" }) => {
   const navigate = useNavigate();
   const [allAuthors, setAllAuthors] = useState([]);
   const [allPublishers, setAllPublishers] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [allYears, setAllYears] = useState([]);
-  const [minPriceAndMaxPrice, setMinPriceAndMaxPrice] = useState({ minPrice: null, maxPrice: null });
-
+  const [minPriceAndMaxPrice, setMinPriceAndMaxPrice] = useState({
+    minPrice: 0,
+    maxPrice: 1,
+  });
+  const [selectPrice, setSelectPrice] = useState({
+    minPrice: 0,
+    maxPrice: 1,
+  });
   const [allLanguages, setAllLanguages] = useState([]);
   const [bydiscount, setByDiscount] = useState([]);
   const [bydate, setByDate] = useState([]);
@@ -74,17 +80,9 @@ const ShopSidebar = ({currentLink=""}) => {
         setAllPublishers(publishers);
         setAllTags(tags);
         setAllYears(years);
-        if (
-          typeof priceRange.minPrice === "number" &&
-          typeof priceRange.maxPrice === "number"
-        ) {
-          if (priceRange.minPrice === priceRange.maxPrice) {
-            priceRange.maxPrice += 1;
-          }
-          setMinPriceAndMaxPrice(priceRange);
-        }
-        
+     
         setMinPriceAndMaxPrice(priceRange);
+        setSelectPrice(priceRange);
         setByDate(byDateRes);
         setByDiscount(byDiscountRes);
       } catch (err) {
@@ -108,25 +106,25 @@ const ShopSidebar = ({currentLink=""}) => {
       tags: selectedTags.join(","),
       publisher_product: selectedPublishers.join(","),
       date_product: selectedYears.join(","),
-      language: selectedLanguages
-        .map((lang) => languageMap[lang] || lang)
-        .join(","),
+      language: selectedLanguages.map((lang) => languageMap[lang] || lang).join(","),
       promotion: selectedPromotion,
-      price_min: minPriceAndMaxPrice.minPrice,
-      price_max: minPriceAndMaxPrice.maxPrice,
+      price_min: selectPrice.minPrice,
+      price_max: selectPrice.maxPrice,
     };
-
+  
     const queryParams = new URLSearchParams();
-
+  
     Object.entries(filtros).forEach(([key, value]) => {
-      if (value && value.length > 0) {
+      if (value != null && value !== "") {
+        console.log(`Filtro: ${key} = ${value}`); // Log para confirmar
         queryParams.append(key, value);
       }
     });
-
+  
     const url = `${currentLink}?${queryParams.toString()}`;
-    navigate(url); // muda o URL sem recarregar a página
+    navigate(url);
   };
+  
 
   return (
     <div className="shop-filter">
@@ -145,23 +143,23 @@ const ShopSidebar = ({currentLink=""}) => {
                 {minPriceAndMaxPrice.minPrice !== null &&
                   minPriceAndMaxPrice.maxPrice !== null && (
                     <SlideDragable
-                      minPrice={minPriceAndMaxPrice.minPrice}
-                      maxPrice={minPriceAndMaxPrice.maxPrice}
-                      choosedMinPrice={minPriceAndMaxPrice.minPrice}
-                      choosedMaxPrice={minPriceAndMaxPrice.maxPrice}
-                      onChange={({ min, max }) => {
-                        if (
-                          min !== minPriceAndMaxPrice.minPrice ||
-                          max !== minPriceAndMaxPrice.maxPrice
-                        ) {
-                          setMinPriceAndMaxPrice({
-                            minPrice: min,
-                            maxPrice: max,
-                          });
-                        }
-                      }}
-                      
-                    />
+                    minPrice={minPriceAndMaxPrice.minPrice}
+                    maxPrice={minPriceAndMaxPrice.maxPrice}
+                    choosedMinPrice={selectPrice.minPrice}
+                    choosedMaxPrice={selectPrice.maxPrice}
+                    onChange={({ min, max }) => {
+                      if (
+                        min !== selectPrice.minPrice ||
+                        max !== selectPrice.maxPrice
+                      ) {
+                        setSelectPrice({
+                          minPrice: min,
+                          maxPrice: max,
+                        });
+                      }
+                    }}
+                  />
+                  
                   )}
               </div>
             </div>
@@ -198,7 +196,15 @@ const ShopSidebar = ({currentLink=""}) => {
         <Accordion.Item eventKey="2">
           <Accordion.Header>Categorias</Accordion.Header>
           <Accordion.Body>
-            <div className="widget dz-widget_services">
+            <div
+              className="widget dz-widget_services"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                columnGap: "1rem", // espaço entre colunas
+                rowGap: "0rem", // espaço entre linhas (reduzido)
+              }}
+            >
               {allTags.map((tag, ind) => (
                 <div className="form-check search-content" key={ind}>
                   <input
@@ -207,7 +213,7 @@ const ShopSidebar = ({currentLink=""}) => {
                     id={`tagCheck-${ind}`}
                     value={tag}
                     checked={selectedTags.includes(tag)}
-                    onChange={(e) =>
+                    onChange={() =>
                       handleCheckboxChange(tag, selectedTags, setSelectedTags)
                     }
                   />
@@ -292,7 +298,15 @@ const ShopSidebar = ({currentLink=""}) => {
         <Accordion.Item eventKey="5">
           <Accordion.Header>Ano</Accordion.Header>
           <Accordion.Body>
-            <div className="widget dz-widget_services">
+            <div
+              className="widget dz-widget_services"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                columnGap: "1rem",
+                rowGap: "0rem",
+              }}
+            >
               {allYears.map((year, ind) => (
                 <div className="form-check search-content" key={ind}>
                   <input

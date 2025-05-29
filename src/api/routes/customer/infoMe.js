@@ -4,7 +4,7 @@ export async function fetchCustomerInfo() {
   try {
     const response = await api.get("/customers/infoMe");
 
-    console.log("Resposta da API:", response.data);
+    
     return response.data;
   } catch (err) {
     console.error("Erro:", err);

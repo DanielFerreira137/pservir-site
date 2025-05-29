@@ -48,10 +48,10 @@ function Login() {
           <div className="row">
             <div className="col-lg-6 col-md-6 mb-4">
               <div className="login-area">
-                <h4>NEW CUSTOMER</h4>
-                <p>By creating an account with our store, you will be able to move through the checkout process faster...</p>
+                <h4>Novo Cliente</h4>
+                <p>Ao criar uma conta na nossa loja, poderá concluir as suas compras de forma mais rápida, acompanhar o status dos seus pedidos e guardar os seus dados para futuras compras com mais comodidade.</p>
                 <Link to="/shop-registration" className="btn btn-primary btnhover m-r5 button-lg radius-no">
-                  CREATE AN ACCOUNT
+                  Criar Uma Conta
                 </Link>
               </div>
             </div>
@@ -60,31 +60,27 @@ function Login() {
               <div className="login-area">
                 <form onSubmit={handleLogin} className={`col-12 ${forgotPass ? 'd-none' : ''}`}>
                   <h4 className="text-secondary">LOGIN</h4>
-                  <p className="font-weight-600">If you have an account with us, please log in.</p>
+                  <p className="font-weight-600">Se tem uma conta connosco, inicie sessão.</p>
                   {error && <div className="alert alert-danger mb-3">{error}</div>}
                   {success && <div className="alert alert-success mb-3">{success}</div>}
 
                   <div className="mb-4">
                     <label className="label-title">Email *</label>
-                    <input name="email" required className="form-control" placeholder="Your Email" type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <input name="email" required className="form-control" placeholder="Seu Email" type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
                   </div>
                   <div className="mb-4">
-                    <label className="label-title">PASSWORD *</label>
-                    <input name="password" required className="form-control" placeholder="Type Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <label className="label-title">PALAVRA-PASSE *</label>
+                    <input name="password" required className="form-control" placeholder="Sua Palavra-Passe" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
                   <div className="text-left">
                     <button type="submit" className="btn btn-primary btnhover me-2" disabled={loading}>
                       {loading ? 'Loading...' : 'Login'}
                     </button>
                     <Link to="#" className="m-l5" onClick={() => setForgotPass(!forgotPass)}>
-                      <i className="fas fa-unlock-alt"></i> Forgot Password
+                      <i className="fas fa-unlock-alt"></i> Esqueceu a Palavra-Passe?
                     </Link>
                   </div>
-                  <div className="mt-4 p-3 bg-light rounded small">
-                    <strong>Para testar:</strong><br />
-                    Username: joaodoe <br />
-                    Senha: segura123
-                  </div>
+                
                 </form>
 
                 <form onSubmit={(e) => e.preventDefault()} className={`col-12 ${forgotPass ? '' : 'd-none'}`}>
