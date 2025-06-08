@@ -66,11 +66,17 @@ function Index1() {
             </div>
           </div>
         </section>
-        <section className="content-inner-1">
+        <section className="content-inner-1 bg-grey reccomend">
           <div className="container">
+            <div className="section-head text-center">
+              <h2 className="title">Promoções</h2>
+              
+            </div>
             <BookSaleSlider />
           </div>
         </section>
+          
+         
         <section className="content-inner-">
           <div className="container">
             <OfferSlider />
@@ -85,10 +91,10 @@ function Index1() {
 						</div>
 						<LatestNewsSlider />	
 					</div>
-				</section>	*/}
+				</section>	
         <section className="content-inner-2">
           <NewsLetter />
-        </section>
+        </section>*/}
       </div>
     </>
   );

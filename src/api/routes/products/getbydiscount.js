@@ -4,7 +4,6 @@ export async function getbydiscount() {
   try {
     const response = await api.get("/products/promotions/by-discount");
 
-   console.log("Response:", response.data);
     return response.data;
   } catch (err) {
     console.error("Erro:", err);

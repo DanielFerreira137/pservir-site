@@ -9,26 +9,22 @@ export const MenuListArray2 = [
         content: [
             {
                 title: 'Livros em Destaque',
-                to: '/books-grid-view-sidebar',
+                to: '/books-list-view-sidebar',
             },
             {
                 title: 'Livros Mais Vendidos',
-                to: '/books-grid-view-sidebar',
-            },
-            {
-                title: 'Novidades',
-                to: '/books-grid-view-sidebar',
+                to: '/books-grid-view-sidebar?category=mostSold',
             },
             {
                 title: 'Livros Populares',
-                to: '/books-grid-view-sidebar',
+                to: '/books-grid-view-sidebar?category=mostLiked',
             },
         ],	
-        to: '/books-grid-view-sidebar',
+        to: '/books-list-view-sidebar',
     },
     {
         title: 'Oportunidades',	
-        to: '/',
+        to: '/books-list-view-sidebar?category=opportunities',
     },
     {
         title: 'Blog',

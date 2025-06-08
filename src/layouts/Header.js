@@ -13,10 +13,20 @@ import Collapse from "react-bootstrap/Collapse";
 import { MenuListArray2 } from "./MenuListArray2";
 
 import { useAuth } from "../context/AuthContext";
-function Header() {
+import { useCart } from "../context/CartContext";
 
+function Header() {
   const { user, isAuthenticated } = useAuth();
 
+  const { cartItems, removeFromCart } = useCart();
+  const cartTotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.number,
+    0
+  );
+
+  const handleRemoveItem = (id) => {
+    removeFromCart(id);
+  };
 
   const [selectBtn, setSelectBtn] = useState("Category");
   /* for sticky header */
@@ -26,6 +36,23 @@ function Header() {
       setheaderFix(window.scrollY > 50);
     });
   }, []);
+  const [searchQuery, setSearchQuery] = useState("");
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+  /* handleSearch */
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const searchInput = document.querySelector(".header-item-search input");
+    if (searchInput && searchInput.value.trim() !== "") {
+      const searchQuery = searchInput.value.trim();
+      // Redirect to the search results page with the query
+      window.location.href = `/books-list-view-sidebar?search=${encodeURIComponent(searchQuery)}`;
+    } else {
+      alert("Por favor, insira um termo de pesquisa válido.");
+    }
+  }
+  /* handleSearch End */
 
   /* for open menu Toggle btn  */
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -57,14 +84,13 @@ function Header() {
     <header className="site-header mo-left header style-1">
       <div className="header-info-bar">
         <div className="container clearfix">
-        
-                <div className="logo-header logo-dark">
-                <Link to={"/"}>
-                  <img src={logo} alt="logo" style={{ padding: '10px' }} />
-                </Link>
-                </div>
+          <div className="logo-header logo-dark">
+            <Link to={"/"}>
+              <img src={logo} alt="logo" style={{ padding: "10px" }} />
+            </Link>
+          </div>
 
-                {/* <!-- EXTRA NAV --> */}
+          {/* <!-- EXTRA NAV --> */}
           <div className="extra-nav">
             <div className="extra-cell">
               <ul className="navbar-nav header-right">
@@ -99,89 +125,86 @@ function Header() {
                       <path d="M0 0h24v24H0V0z" fill="none" />
                       <path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
                     </svg>
-                    <span className="badge">5</span>
+                    <span className="badge">{cartItems.length}</span>
                   </Dropdown.Toggle>
                   <Dropdown.Menu as="ul" className="dropdown-menu cart-list">
-                    <li className="cart-item">
-                      <div className="media">
-                        <div className="media-left">
-                          <Link to={"/books-detail"}>
-                            <img alt="" className="media-object" src={pic1} />
-                          </Link>
-                        </div>
-                        <div className="media-body">
-                          <h6 className="dz-title">
-                            <Link
-                              to={"/books-detail"}
-                              className="media-heading"
-                            >
-                              Real Life
-                            </Link>
+                    {cartItems.length === 0 ? (
+                      <li className="cart-item text-center py-3">
+                        <span className="text-muted">Carrinho vazio</span>
+                      </li>
+                    ) : (
+                      <>
+                        {cartItems.map((item) => (
+                          <li className="cart-item" key={item.id}>
+                            <div className="media">
+                              <div className="media-left">
+                                <Link to={`/book-details/${item.id}`}>
+                                  <img
+                                    alt={item.title}
+                                    className="media-object"
+                                    src={item.image}
+                                    width="40"
+                                  />
+                                </Link>
+                              </div>
+                              <div className="media-body">
+                                <h6 className="dz-title">
+                                  <Link
+                                    to={`/book-details/${item.id}`}
+                                    className="media-heading"
+                                  >
+                                    {item.title}
+                                  </Link>
+                                </h6>
+                                <span className="dz-price">
+                                  {(item.price * item.number).toFixed(2)} €
+                                </span>
+                                <span
+                                  className="item-close"
+                                  style={{
+                                    backgroundColor: "#488cd4",
+                                    color: "white",
+                                    display: "block",
+                                    fontSize: "24px",
+                                    height: "24px",
+                                    lineHeight: "24px",
+                                    position: "absolute",
+                                    right: "0px",
+                                    textAlign: "center",
+                                    top: "50%",
+                                    width: "24px",
+                                    borderRadius: "6px",
+                                    fontWeight: "400",
+                                    transform: "translateY(-50%)",
+                                  }}
+                                >
+                                  {item.number}
+                                </span>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                        <li className="cart-item text-center">
+                          <h6 className="text-secondary">
+                            Total = {cartTotal.toFixed(2)} €
                           </h6>
-                          <span className="dz-price">$28.00</span>
-                          <span className="item-close">&times;</span>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="cart-item">
-                      <div className="media">
-                        <div className="media-left">
-                          <Link to={"/books-detail"}>
-                            <img alt="" className="media-object" src={pic2} />
+                        </li>
+                        <li className="text-center d-flex">
+                          <Link
+                            to={"/shop-cart"}
+                            className="btn btn-sm btn-primary me-2 btnhover w-100"
+                          >
+                            Ver Carrinho
                           </Link>
-                        </div>
-                        <div className="media-body">
-                          <h6 className="dz-title">
-                            <Link
-                              to={"/books-detail"}
-                              className="media-heading"
-                            >
-                              Home
-                            </Link>
-                          </h6>
-                          <span className="dz-price">$28.00</span>
-                          <span className="item-close">&times;</span>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="cart-item">
-                      <div className="media">
-                        <div className="media-left">
-                          <Link to={"/books-detail"}>
-                            <img alt="" className="media-object" src={pic3} />
+                          <Link
+                            to={"/shop-checkout"}
+                            className="btn btn-sm btn-outline-primary btnhover w-100"
+                          >
+                            Finalizar Compra
                           </Link>
-                        </div>
-                        <div className="media-body">
-                          <h6 className="dz-title">
-                            <Link
-                              to={"/books-detail"}
-                              className="media-heading"
-                            >
-                              Such a fun age
-                            </Link>
-                          </h6>
-                          <span className="dz-price">$28.00</span>
-                          <span className="item-close">&times;</span>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="cart-item text-center">
-                      <h6 className="text-secondary">Totle = $500</h6>
-                    </li>
-                    <li className="text-center d-flex">
-                      <Link
-                        to={"/shop-cart"}
-                        className="btn btn-sm btn-primary me-2 btnhover w-100"
-                      >
-                        View Cart
-                      </Link>
-                      <Link
-                        to={"/shop-checkout"}
-                        className="btn btn-sm btn-outline-primary btnhover w-100"
-                      >
-                        Checkout
-                      </Link>
-                    </li>
+                        </li>
+                      </>
+                    )}
                   </Dropdown.Menu>
                 </Dropdown>
                 {isAuthenticated() ? (
@@ -276,7 +299,6 @@ function Header() {
                   </>
                 ) : (
                   <>
-                    
                     <Link
                       to={"/shop-login"}
                       className="btn btn-primary btnhover ms-2"
@@ -290,17 +312,18 @@ function Header() {
           </div>
 
           {/* <!-- header search nav --> */}
-          <div className="header-search-nav">
+          <div className="header-search-nav" onSubmit={handleSearch}>
             <form className="header-item-search">
               <div className="input-group search-input">
-                
                 <input
                   type="text"
                   className="form-control"
                   aria-label="Text input with dropdown button"
                   placeholder="Procura os teus livros aqui"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
                 />
-                <button className="btn" type="button">
+                <button className="btn" type="button" onClick={handleSearch}>
                   <i className="flaticon-loupe"></i>
                 </button>
               </div>
@@ -315,14 +338,13 @@ function Header() {
       >
         <div className="main-bar clearfix">
           <div className="container clearfix">
-           
-                  <div className="logo-header logo-dark">
-                    <Link to={"#"}>
-                    <img src={logo} alt="logo" />
-                    </Link>
-                  </div>
+            <div className="logo-header logo-dark">
+              <Link to={"#"}>
+                <img src={logo} alt="logo" />
+              </Link>
+            </div>
 
-                  {/* <!-- Nav Toggle Button --> */}
+            {/* <!-- Nav Toggle Button --> */}
             <button
               className={`navbar-toggler collapsed navicon justify-content-end ${
                 sidebarOpen ? "open" : ""
@@ -335,7 +357,6 @@ function Header() {
             </button>
 
             {/* <!-- EXTRA NAV --> */}
-            
 
             {/* <!-- Main Nav --> */}
             <div
@@ -349,13 +370,15 @@ function Header() {
                   <img src={logo} alt="" />
                 </Link>
               </div>
-              <form className="search-input">
+              <form className="search-input" onSubmit={handleSearch}>
                 <div className="input-group">
                   <input
                     type="text"
                     className="form-control"
                     aria-label="Text input with dropdown button"
                     placeholder="Search Books Here"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                   />
                   <button className="btn" type="button">
                     <i className="flaticon-loupe"></i>

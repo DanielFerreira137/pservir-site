@@ -36,7 +36,7 @@ function OfferSlider() {
         const response = await getbydiscount();
 
         setPromotions(response);
-     
+        //console.log("Promotions fetched:", response);
       } catch (error) {
         console.error("Error fetching promotions:", error);
       }
@@ -125,7 +125,7 @@ function OfferSlider() {
               <SwiperSlide key={ind}>
                 <div className="dz-card style-2">
                   <div className="dz-media">
-                    <Link to="/books-detail">
+                    <Link   to={`/books-list-view-sidebar?promotion_id=${item.promotionId}`}>
                       <div
                         className="d-flex align-items-center justify-content-center text-white fw-bold"
                         style={{
@@ -142,13 +142,14 @@ function OfferSlider() {
                   </div>
                   <div className="dz-info">
                     <h4 className="dz-title">
-                      <Link to="/books-detail">{item.title}</Link>
+                      <Link   to={`/books-list-view-sidebar?promotion_id=${item.promotionId}`}>{item.title}</Link>
                     </h4>
                     <div className="dz-meta"></div>
                     <p>{item.description}</p>
                     <div className="bookcard-footer">
                       <Link
-                        to="/shop-cart"
+                        to={`/books-list-view-sidebar?promotion_id=${item.promotionId}`}
+                     
                         className="btn btn-primary m-t15 btnhover btnhover2"
                       >
                         Explorar

@@ -51,6 +51,7 @@ const ShopSidebar = ({ currentLink = "" }) => {
   const [selectedYears, setSelectedYears] = useState([]);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [selectedPromotion, setSelectedPromotion] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -102,12 +103,13 @@ const ShopSidebar = ({ currentLink = "" }) => {
 
   const handleSearch = () => {
     const filtros = {
+      category:selectedCategory || "",
       author_product: selectedAuthors.join(","),
       tags: selectedTags.join(","),
       publisher_product: selectedPublishers.join(","),
       date_product: selectedYears.join(","),
       language: selectedLanguages.map((lang) => languageMap[lang] || lang).join(","),
-      promotion: selectedPromotion,
+      promotion_id: selectedPromotion,
       price_min: selectPrice.minPrice,
       price_max: selectPrice.maxPrice,
     };
@@ -125,7 +127,7 @@ const ShopSidebar = ({ currentLink = "" }) => {
     navigate(url);
   };
   
-
+  
   return (
     <div className="shop-filter">
       <div className="d-flex justify-content-between">
@@ -165,7 +167,65 @@ const ShopSidebar = ({ currentLink = "" }) => {
             </div>
           </Accordion.Body>
         </Accordion.Item>
-
+        {/*<Accordion.Item eventKey="50">
+          <Accordion.Header>Destaques</Accordion.Header>
+          <Accordion.Body>
+            <div className="widget dz-widget_services">
+              
+                <div className="form-check search-content" key={"1"}>
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="destaque"
+                    id="destaque1"
+                    value={"mostSold"}
+                    checked={selectedCategory === "mostSold"}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor="destaque1"
+                  >
+                    Livros Mais Vendidos 
+                  </label>
+                </div>
+                <div className="form-check search-content" key={"2"}>
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="destaque"
+                    id="destaque1"
+                    value={"mostLiked"}
+                    checked={selectedCategory === "mostLiked"}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor="destaque1"
+                  >
+                    Livros Mais Populares 
+                  </label>
+                </div>
+                <div className="form-check search-content" key={"3"}>
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="destaque"
+                    id="destaque1"
+                    value={"opportunities"}
+                    checked={selectedCategory === "opportunities"}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor="destaque1"
+                  >
+                    Oportunidades
+                  </label>
+                </div>
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>*/}
         <Accordion.Item eventKey="1">
           <Accordion.Header>Promoções</Accordion.Header>
           <Accordion.Body>

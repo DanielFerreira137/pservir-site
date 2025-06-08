@@ -66,7 +66,7 @@ function Index(props){
 					<Route path='/shop-login' exact element={<Login/>} />
 					<Route path='/shop-registration' exact element={<Registration/>} />
 					<Route path='/shop-checkout' exact element={<ShopCheckout/>} />
-					<Route path='/books-detail' exact element={<ShopDetail/>} />
+					<Route path='/book-details/:id' exact element={<ShopDetail/>} />
 					<Route path='/blog-grid' exact element={<BlogGrid/>} />
 					<Route path='/blog-large-sidebar' exact element={<BlogLargeSidebar/>} />
 					<Route path='/blog-list-sidebar' exact element={<BlogListSidebar/>} />

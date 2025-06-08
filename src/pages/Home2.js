@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 
 import about1 from './../assets/images/about/about1.jpg';
-import about2 from './../assets/images/about/about2.jpg';
+import about2 from './../assets/images/about/about2.png';
 import logoWhite from './../assets/images/logo-white.png';
 
 //layouts

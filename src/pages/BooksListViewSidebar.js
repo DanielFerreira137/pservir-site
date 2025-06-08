@@ -14,25 +14,6 @@ import ShopSidebar from "../elements/ShopSidebar";
 import book16 from "./../assets/images/books/grid/book16.jpg";
 import book12 from "./../assets/images/books/grid/book12.jpg";
 
-const cardDetials = [
-  {
-    image: book12,
-    title: "The Missadventure of David",
-    subtitle1: "DRAMA",
-    subtitle2: "HORROR",
-    price1: "23.00",
-    price2: "52.00",
-  },
-  {
-    image: book16,
-    title: "Thunder Stunt",
-    subtitle1: "ADVANTURE",
-    subtitle2: "SCIENCE",
-    price1: "54.78",
-    price2: "70.00",
-  },
-];
-
 function BooksListViewSidebar() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -40,6 +21,7 @@ function BooksListViewSidebar() {
   const [showFilters, setShowFilters] = useState(false);
 
   const filtersFromURL = {
+    categories: searchParams.get("category")?.split(",") || [],
     authors: searchParams.get("author_product")?.split(",") || [],
     tags: searchParams.get("tags")?.split(",") || [],
     publishers: searchParams.get("publisher_product")?.split(",") || [],
@@ -47,23 +29,89 @@ function BooksListViewSidebar() {
     languages: searchParams.get("language")?.split(",") || [],
     price_min: parseFloat(searchParams.get("price_min")) || 0,
     price_max: parseFloat(searchParams.get("price_max")) || 1000,
-    promotion: searchParams.get("promotion") || "",
+    promotion_id: searchParams.get("promotion_id") || "",
   };
- 
+
   const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const productsPerPage = 20;
+
+  // Calcular páginas
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+  const currentProducts = products.slice(startIndex, endIndex);
 
   useEffect(() => {
-    const queryString = location.search;
-    fetch(`http://localhost:8090/products/filter${queryString}`)
-      .then((res) => res.json())
-      .then((data) => {
+    console.log("Category parameter:", searchParams.get("category"));
+    
+    const fetchProducts = async () => {
+      try {
+        let data;
+        
+        if (!searchParams.get("category")) {
+          console.log("No category filter applied, redirecting to books list.");
+          const queryString = location.search;
+          const response = await fetch(process.env.REACT_APP_API + `/products/filter${queryString}`);
+          data = await response.json();
+        } else if (searchParams.get("category") === "mostSold") {
+          const response = await fetch(process.env.REACT_APP_API + `/products/list/mostSold`);
+          data = await response.json();
+        } else if (searchParams.get("category") === "mostLiked") {
+          const response = await fetch(process.env.REACT_APP_API + `/products/list/mostLiked`);
+          data = await response.json();
+        } else if (searchParams.get("category") === "opportunities") {
+          const response = await fetch(process.env.REACT_APP_API + `/products/filter`);
+          data = await response.json();
+          const filteredProducts = data.data.filter(
+            (product) => product.promotion && product.promotion.promotionId !== 0
+          );
+          data.data = filteredProducts;
+        }
+
+        console.log("Produtos carregados:", data.data);
         setProducts(data.data);
-       
-      })
-      .catch((err) => console.error("Erro ao carregar produtos:", err));
+        setTotalProducts(data.data.length);
+        setCurrentPage(1); // Reset para primeira página quando carregar novos produtos
+      } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+      }
+    };
+
+    fetchProducts();
   }, [location.search]);
+
   const [accordBtn, setAccordBtn] = useState();
   const [selectBtn, setSelectBtn] = useState("Newest");
+
+  // Função para mudar de página
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll para o topo da lista de produtos
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Gerar números das páginas para mostrar
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Ajustar startPage se estivermos no final
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    
+    return pageNumbers;
+  };
+
   return (
     <>
       <div className="page-content bg-grey">
@@ -79,7 +127,13 @@ function BooksListViewSidebar() {
 
               <div className="col-xl-9">
                 <div className="d-flex justify-content-between align-items-center">
-                  <h4 className="title">Livros</h4>
+                  <h4 className="title">{
+                    searchParams.get("category") === "mostSold" ?  "Mais Vendidos" :
+                    searchParams.get("category") === "mostLiked" ? "Mais Curtidos" :
+                    searchParams.get("category") === "opportunities" ? "Oportunidades" :
+                    searchParams.get("category") === null ? "Todos os Livros" : 
+                    searchParams.get("category")
+                    }</h4>
                   <Link to={"#"} className="btn btn-primary panel-btn">
                     Filter
                   </Link>
@@ -93,7 +147,12 @@ function BooksListViewSidebar() {
                       >
                         <li className="nav-item">
                           <Link
-                            to={"/books-list-view-sidebar"}
+                            to={
+                              searchParams.get("category") != null
+                                ? "/books-list-view-sidebar?category=" +
+                                  searchParams.get("category")
+                                : "/books-list-view-sidebar"
+                            }
                             className="nav-link"
                           >
                             <svg
@@ -120,7 +179,12 @@ function BooksListViewSidebar() {
                         </li>
                         <li className="nav-item">
                           <Link
-                            to={"/books-grid-view-sidebar"}
+                             to={
+                              searchParams.get("category") != null
+                                ? "/books-grid-view-sidebar?category=" +
+                                  searchParams.get("category")
+                                : "/books-grid-view-sidebar"
+                            }
                             className="nav-link"
                           >
                             <svg
@@ -161,9 +225,11 @@ function BooksListViewSidebar() {
                     <div className="widget widget_services style-2"></div>
                   </div>
                 </Collapse>
-                {products &&
-                  products.map((data, i) => (
-                    <div className="col-md-12 col-sm-12">
+                
+                {/* Renderizar apenas os produtos da página atual */}
+                {currentProducts &&
+                  currentProducts.map((data, i) => (
+                    <div key={data.product_id} className="col-md-12 col-sm-12">
                       <div className="dz-shop-card style-2">
                         <div className="dz-media position-relative">
                           <img
@@ -198,14 +264,16 @@ function BooksListViewSidebar() {
                                 )}
                               </ul>
                               <h4 className="title mb-0">
-                                <Link to={"/books-list"}>{data.title}</Link>
+                                <Link to={`/book-details/${data.product_id}`}>
+                                  {data.title}
+                                </Link>
                               </h4>
                             </div>
                             <div className="price">
                               {data.promotion.promotionId !== 0 ? (
                                 <>
                                   <span className="price-num text-primary">
-                                   {data.promotion.priceWithDiscount} €
+                                    {data.promotion.priceWithDiscount} €
                                   </span>
                                   <del>{data.price} €</del>
                                 </>
@@ -242,20 +310,21 @@ function BooksListViewSidebar() {
                                   )}
                                 </div>
                               </div>
-                              <div className="review-num">
-                             
-                              </div>
+                              <div className="review-num"></div>
                             </div>
                             <div className="rate">
                               <ul className="book-info">
                                 <li>
-                                  <span>Escrito Por</span>{data.author}
+                                  <span>Escrito Por</span>
+                                  {data.author}
                                 </li>
                                 <li>
-                                  <span>Editado Por</span>{data.publisher}
+                                  <span>Editado Por</span>
+                                  {data.publisher}
                                 </li>
                                 <li>
-                                  <span>Ano</span>{data.year}
+                                  <span>Ano</span>
+                                  {data.year}
                                 </li>
                               </ul>
                               <div className="d-flex">
@@ -264,7 +333,7 @@ function BooksListViewSidebar() {
                                   className="btn btn-secondary btnhover btnhover2"
                                 >
                                   <i className="flaticon-shopping-cart-1 m-r10"></i>{" "}
-                                  Add to cart
+                                  Carrinho
                                 </Link>
                               </div>
                             </div>
@@ -274,37 +343,86 @@ function BooksListViewSidebar() {
                     </div>
                   ))}
 
+                {/* Paginação atualizada */}
                 <div className="row page">
                   <div className="col-md-6">
-                    <p className="page-text">Showing 12 from 50 data</p>
+                    <p className="page-text">
+                      Mostrando {startIndex + 1} a {Math.min(endIndex, totalProducts)} de {totalProducts} produtos
+                    </p>
                   </div>
                   <div className="col-md-6">
                     <nav aria-label="Blog Pagination">
                       <ul className="pagination style-1 p-t20">
-                        <li className="page-item">
-                          <Link to={"#"} className="page-link prev">
-                            Prev
-                          </Link>
+                        {/* Botão Anterior */}
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button
+                            className="page-link prev"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                          >
+                            Anterior
+                          </button>
                         </li>
-                        <li className="page-item">
-                          <Link to={"#"} className="page-link active">
-                            1
-                          </Link>
-                        </li>
-                        <li className="page-item">
-                          <Link to={"#"} className="page-link">
-                            2
-                          </Link>
-                        </li>
-                        <li className="page-item">
-                          <Link to={"#"} className="page-link">
-                            3
-                          </Link>
-                        </li>
-                        <li className="page-item">
-                          <Link to={"#"} className="page-link next">
-                            Next
-                          </Link>
+                        
+                        {/* Primeira página */}
+                        {getPageNumbers()[0] > 1 && (
+                          <>
+                            <li className="page-item">
+                              <button
+                                className="page-link"
+                                onClick={() => handlePageChange(1)}
+                              >
+                                1
+                              </button>
+                            </li>
+                            {getPageNumbers()[0] > 2 && (
+                              <li className="page-item disabled">
+                                <span className="page-link">...</span>
+                              </li>
+                            )}
+                          </>
+                        )}
+                        
+                        {/* Números das páginas */}
+                        {getPageNumbers().map((pageNumber) => (
+                          <li key={pageNumber} className="page-item">
+                            <button
+                              className={`page-link ${currentPage === pageNumber ? 'active' : ''}`}
+                              onClick={() => handlePageChange(pageNumber)}
+                            >
+                              {pageNumber}
+                            </button>
+                          </li>
+                        ))}
+                        
+                        {/* Última página */}
+                        {getPageNumbers()[getPageNumbers().length - 1] < totalPages && (
+                          <>
+                            {getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1 && (
+                              <li className="page-item disabled">
+                                <span className="page-link">...</span>
+                              </li>
+                            )}
+                            <li className="page-item">
+                              <button
+                                className="page-link"
+                                onClick={() => handlePageChange(totalPages)}
+                              >
+                                {totalPages}
+                              </button>
+                            </li>
+                          </>
+                        )}
+                        
+                        {/* Botão Próxima */}
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                          <button
+                            className="page-link next"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                          >
+                            Próxima
+                          </button>
                         </li>
                       </ul>
                     </nav>

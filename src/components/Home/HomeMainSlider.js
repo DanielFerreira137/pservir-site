@@ -115,13 +115,13 @@ export default function HomeMainSlider() {
                         <div className="content-btn" data-swiper-parallax="-60">
                           <Link
                             className="btn btn-primary btnhover"
-                            to={"/books-grid-view"}
+                            to={"/books-list-view-sidebar"}
                           >
                             Descobrir Livros
                           </Link>
                           <Link
                             className="btn border btnhover ms-4 text-white"
-                            to={"/books-detail"}
+                            to={"/about-us"}
                           >
                             Sobre Nós
                           </Link>
