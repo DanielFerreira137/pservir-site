@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Nav, Tab } from "react-bootstrap";
 import { getProduct } from "../api/routes/products/getProduct";
-
+import { addWishList } from "../api/routes/customer/addWishList";
+import { removeWishList } from "../api/routes/customer/removeWishList";
+import { customerWishList } from "../api/routes/customer/customerWishList";
 //Component
 import ClientsSlider from "../components/Home/ClientsSlider";
 import CounterSection from "../elements/CounterSection";
@@ -16,10 +18,10 @@ import profile3 from "./../assets/images/profile3.jpg";
 import profile1 from "./../assets/images/profile1.jpg";
 //addToCart
 import { useCart } from "../context/CartContext";
-
+import { useAuth } from "../context/AuthContext";
 // Função para buscar produtos relacionados por tags
+
 const getRelatedProducts = async (tags, currentProductId) => {
-   
   if (!tags || tags.length === 0) return [];
 
   const maxRelated = 3;
@@ -133,6 +135,14 @@ function ShopDetail() {
   const [error, setError] = useState(null);
   const [loadingRelated, setLoadingRelated] = useState(false);
   const { addToCart } = useCart();
+
+  const {
+    user,
+    isAuthenticated,
+    isInWishlist,
+    toggleWishlist,
+    wishlistLoading,
+  } = useAuth();
   useEffect(() => {
     const fetchBook = async () => {
       try {
@@ -225,7 +235,7 @@ function ShopDetail() {
     if (id) {
       fetchBook();
     }
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   if (loading) {
     return (
@@ -272,7 +282,18 @@ function ShopDetail() {
       </div>
     );
   }
+  const handleWishlistToggle = async () => {
+    if (!book) return;
 
+    const result = await toggleWishlist(book.id);
+
+    if (result.success) {
+      // Opcional: mostrar toast ou notificação
+      console.log(result.message);
+    } else {
+      alert(result.message);
+    }
+  };
   // Cria array de detalhes do livro dinamicamente
   const tableDetail = [
     { tablehead: "Título", tabledata: book.title },
@@ -294,8 +315,12 @@ function ShopDetail() {
             <div className="row book-grid-row style-4 m-b60">
               <div className="col">
                 <div className="dz-box">
-                  <div className="dz-media" >
-                    <img src={book.image} alt={book.title} style={{width:"420px"}}/>
+                  <div className="dz-media">
+                    <img
+                      src={book.image}
+                      alt={book.title}
+                      style={{ width: "420px" }}
+                    />
                   </div>
                   <div className="dz-content">
                     <div className="dz-header">
@@ -312,7 +337,6 @@ function ShopDetail() {
                         <ul className="book-info">
                           <li>
                             <div className="writer-info">
-                              <img src={book.writerImage} alt="author" />
                               <div>
                                 <span>Escrito Por</span>
                                 {book.writerName}
@@ -367,7 +391,6 @@ function ShopDetail() {
                             </button>
                           </div>
                           <Link
-                           
                             className={`btn btn-primary btnhover btnhover2 ${
                               book.stock === 0 ? "disabled" : ""
                             }`}
@@ -399,13 +422,35 @@ function ShopDetail() {
                             <input
                               className="form-check-input"
                               type="checkbox"
-                              id="flexCheckDefault1"
+                              id={`flexCheckDefault${book.id}`}
+                              checked={isInWishlist(book.id)}
+                              disabled={wishlistLoading}
+                              onChange={handleWishlistToggle}
                             />
                             <label
                               className="form-check-label"
-                              htmlFor="flexCheckDefault1"
+                              htmlFor={`flexCheckDefault${book.id}`}
+                              style={{
+                                cursor: wishlistLoading
+                                  ? "not-allowed"
+                                  : "pointer",
+                                opacity: wishlistLoading ? 0.6 : 1,
+                                transition: "opacity 0.3s ease",
+                              }}
                             >
-                              <i className="flaticon-heart"></i>
+                              {wishlistLoading ? (
+                                <div
+                                  className="spinner-border spinner-border-sm text-danger"
+                                  role="status"
+                                  style={{ width: "16px", height: "16px" }}
+                                >
+                                  <span className="visually-hidden">
+                                    Loading...
+                                  </span>
+                                </div>
+                              ) : (
+                                <i className="flaticon-heart"></i> 
+                              )}
                             </label>
                           </div>
                         </div>

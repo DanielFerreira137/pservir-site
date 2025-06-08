@@ -26,7 +26,7 @@ function Login() {
 
       if (user && token) {
         login(user, token);
-        setSuccess(`Bem-vindo, ${user.name}!`);
+        setSuccess(`Bem-vindo!`);
         setTimeout(() => {
           window.location.href = '/';
         }, 2000);

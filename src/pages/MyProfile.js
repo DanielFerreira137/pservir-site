@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { putCustomer } from "../api/routes/customer/putCustomer";
 
 function MyProfile() {
-  const { user } = useAuth();
+  const { user,logout } = useAuth();
   const [usarMesmoEndereco, setUsarMesmoEndereco] = useState(false);
 
   const formatDate = (date) => {
@@ -166,9 +166,10 @@ function MyProfile() {
                       </li>
                       {paginasPerfil.map((item, i) => (
                         <li key={i}>
-                          <Link to={item.to}>
+                          <Link to={item.to} onClick={item.to === "/" ? logout : null}>
                             <i className={item.icons}></i>
                             <span>{item.name}</span>
+                            
                           </Link>
                         </li>
                       ))}
