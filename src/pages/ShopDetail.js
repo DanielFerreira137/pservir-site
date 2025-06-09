@@ -286,13 +286,6 @@ function ShopDetail() {
     if (!book) return;
 
     const result = await toggleWishlist(book.id);
-
-    if (result.success) {
-      // Opcional: mostrar toast ou notificação
-      console.log(result.message);
-    } else {
-      alert(result.message);
-    }
   };
   // Cria array de detalhes do livro dinamicamente
   const tableDetail = [

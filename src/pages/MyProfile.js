@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { putCustomer } from "../api/routes/customer/putCustomer";
 
 function MyProfile() {
-  const { user,logout } = useAuth();
+  const { user, logout } = useAuth();
   const [usarMesmoEndereco, setUsarMesmoEndereco] = useState(false);
 
   const formatDate = (date) => {
@@ -25,15 +25,19 @@ function MyProfile() {
   });
 
   const [dadosFaturacao, setDadosFaturacao] = useState({
-    faturacao_rua: "",
+    faturacao_morada: "",
+    faturacao_apartamento: "",
     faturacao_cidade: "",
+    faturacao_distrito: "",
     faturacao_codigo_postal: "",
     faturacao_pais: "",
   });
 
   const [dadosEnvio, setDadosEnvio] = useState({
-    envio_rua: "",
+    envio_morada: "",
+    envio_apartamento: "",
     envio_cidade: "",
+    envio_distrito: "",
     envio_codigo_postal: "",
     envio_pais: "",
   });
@@ -51,28 +55,35 @@ function MyProfile() {
       palavra_passe: "",
     });
 
+    // Parse billing address with new detailed format
     const billingParts = user.billingAddress?.split(";") || [];
-    const shippingParts = user.shippingAddress?.split(";") || [];
-
     setDadosFaturacao({
-      faturacao_rua: billingParts[0] || "",
-      faturacao_cidade: billingParts[1] || "",
-      faturacao_codigo_postal: billingParts[2] || "",
-      faturacao_pais: billingParts[3] || "",
+      faturacao_morada: billingParts[0] || "",
+      faturacao_apartamento: billingParts[1] || "",
+      faturacao_cidade: billingParts[2] || "",
+      faturacao_distrito: billingParts[3] || "",
+      faturacao_codigo_postal: billingParts[4] || "",
+      faturacao_pais: billingParts[5] || "",
     });
 
+    // Parse shipping address with new detailed format
+    const shippingParts = user.shippingAddress?.split(";") || [];
     setDadosEnvio({
-      envio_rua: shippingParts[0] || "",
-      envio_cidade: shippingParts[1] || "",
-      envio_codigo_postal: shippingParts[2] || "",
-      envio_pais: shippingParts[3] || "",
+      envio_morada: shippingParts[0] || "",
+      envio_apartamento: shippingParts[1] || "",
+      envio_cidade: shippingParts[2] || "",
+      envio_distrito: shippingParts[3] || "",
+      envio_codigo_postal: shippingParts[4] || "",
+      envio_pais: shippingParts[5] || "",
     });
   }, [user]);
 
   const copiarEnderecoFaturacao = () => {
     setDadosEnvio({
-      envio_rua: dadosFaturacao.faturacao_rua,
+      envio_morada: dadosFaturacao.faturacao_morada,
+      envio_apartamento: dadosFaturacao.faturacao_apartamento,
       envio_cidade: dadosFaturacao.faturacao_cidade,
+      envio_distrito: dadosFaturacao.faturacao_distrito,
       envio_codigo_postal: dadosFaturacao.faturacao_codigo_postal,
       envio_pais: dadosFaturacao.faturacao_pais,
     });
@@ -82,8 +93,10 @@ function MyProfile() {
     e.preventDefault();
 
     const billing_address = [
-      dadosFaturacao.faturacao_rua,
+      dadosFaturacao.faturacao_morada,
+      dadosFaturacao.faturacao_apartamento,
       dadosFaturacao.faturacao_cidade,
+      dadosFaturacao.faturacao_distrito,
       dadosFaturacao.faturacao_codigo_postal,
       dadosFaturacao.faturacao_pais,
     ]
@@ -93,8 +106,10 @@ function MyProfile() {
     const shipping_address = usarMesmoEndereco
       ? billing_address
       : [
-          dadosEnvio.envio_rua,
+          dadosEnvio.envio_morada,
+          dadosEnvio.envio_apartamento,
           dadosEnvio.envio_cidade,
+          dadosEnvio.envio_distrito,
           dadosEnvio.envio_codigo_postal,
           dadosEnvio.envio_pais,
         ]
@@ -107,7 +122,6 @@ function MyProfile() {
       phone: form.telefone,
       country: form.pais,
       tax_id: form.nif,
-      password: form.palavra_passe,
       billing_address,
       shipping_address,
       date_of_birth: form.data_nascimento,
@@ -130,6 +144,16 @@ function MyProfile() {
     { to: "/privacy-policy", icons: "fa fa-key", name: "Política de Privacidade" },
     { to: "/shop-login", icons: "fas fa-sign-out-alt", name: "Sair" },
   ];
+
+  // Helper function to format field labels
+  const formatLabel = (campo) => {
+    return campo
+      .replace(/(faturacao_|envio_)/, "")
+      .replace(/_/g, " ")
+      .replace(/^\w/, (c) => c.toUpperCase())
+      .replace("codigo postal", "Código Postal")
+      .replace("apartamento", "Apartamento, andar, etc.");
+  };
 
   return (
     <div className="page-content bg-white">
@@ -169,7 +193,6 @@ function MyProfile() {
                           <Link to={item.to} onClick={item.to === "/" ? logout : null}>
                             <i className={item.icons}></i>
                             <span>{item.name}</span>
-                            
                           </Link>
                         </li>
                       ))}
@@ -192,7 +215,6 @@ function MyProfile() {
                         { label: "País", name: "pais", type: "text" },
                         { label: "NIF", name: "nif", type: "text" },
                         { label: "Data de Nascimento", name: "data_nascimento", type: "date" },
-                      
                       ].map((field, i) => (
                         <div className="col-lg-6 col-md-6" key={i}>
                           <div className="mb-3">
@@ -217,24 +239,111 @@ function MyProfile() {
                       <h5 className="text-uppercase">Endereço de Faturação</h5>
                     </div>
                     <div className="row">
-                      {["faturacao_rua", "faturacao_cidade", "faturacao_codigo_postal", "faturacao_pais"].map((campo) => (
-                        <div className="col-lg-6 col-md-6" key={campo}>
-                          <div className="mb-3">
-                            <label className="form-label">
-                              {campo.replace("faturacao_", "").replace("_", " ").replace(/^\w/, (c) => c.toUpperCase())}:
-                            </label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name={campo}
-                              value={dadosFaturacao[campo]}
-                              onChange={(e) =>
-                                setDadosFaturacao({ ...dadosFaturacao, [campo]: e.target.value })
-                              }
-                            />
-                          </div>
+                      {/* Morada - full width */}
+                      <div className="col-12">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("faturacao_morada")} *
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="faturacao_morada"
+                            value={dadosFaturacao.faturacao_morada}
+                            onChange={(e) =>
+                              setDadosFaturacao({ ...dadosFaturacao, faturacao_morada: e.target.value })
+                            }
+                          />
                         </div>
-                      ))}
+                      </div>
+                      
+                      {/* Apartamento e Cidade */}
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("faturacao_apartamento")}
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="faturacao_apartamento"
+                            value={dadosFaturacao.faturacao_apartamento}
+                            onChange={(e) =>
+                              setDadosFaturacao({ ...dadosFaturacao, faturacao_apartamento: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("faturacao_cidade")} *
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="faturacao_cidade"
+                            value={dadosFaturacao.faturacao_cidade}
+                            onChange={(e) =>
+                              setDadosFaturacao({ ...dadosFaturacao, faturacao_cidade: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Distrito e Código Postal */}
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("faturacao_distrito")}
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="faturacao_distrito"
+                            value={dadosFaturacao.faturacao_distrito}
+                            onChange={(e) =>
+                              setDadosFaturacao({ ...dadosFaturacao, faturacao_distrito: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("faturacao_codigo_postal")} *
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="faturacao_codigo_postal"
+                            value={dadosFaturacao.faturacao_codigo_postal}
+                            onChange={(e) =>
+                              setDadosFaturacao({ ...dadosFaturacao, faturacao_codigo_postal: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* País */}
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("faturacao_pais")}
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="faturacao_pais"
+                            value={dadosFaturacao.faturacao_pais}
+                            onChange={(e) =>
+                              setDadosFaturacao({ ...dadosFaturacao, faturacao_pais: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     <div className="form-check mb-4">
@@ -258,25 +367,117 @@ function MyProfile() {
                       <h5 className="text-uppercase">Endereço de Envio</h5>
                     </div>
                     <div className="row">
-                      {["envio_rua", "envio_cidade", "envio_codigo_postal", "envio_pais"].map((campo) => (
-                        <div className="col-lg-6 col-md-6" key={campo}>
-                          <div className="mb-3">
-                            <label className="form-label">
-                              {campo.replace("envio_", "").replace("_", " ").replace(/^\w/, (c) => c.toUpperCase())}:
-                            </label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name={campo}
-                              value={dadosEnvio[campo]}
-                              onChange={(e) =>
-                                setDadosEnvio({ ...dadosEnvio, [campo]: e.target.value })
-                              }
-                              disabled={usarMesmoEndereco}
-                            />
-                          </div>
+                      {/* Morada - full width */}
+                      <div className="col-12">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("envio_morada")} *
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="envio_morada"
+                            value={dadosEnvio.envio_morada}
+                            onChange={(e) =>
+                              setDadosEnvio({ ...dadosEnvio, envio_morada: e.target.value })
+                            }
+                            disabled={usarMesmoEndereco}
+                          />
                         </div>
-                      ))}
+                      </div>
+                      
+                      {/* Apartamento e Cidade */}
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("envio_apartamento")}
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="envio_apartamento"
+                            value={dadosEnvio.envio_apartamento}
+                            onChange={(e) =>
+                              setDadosEnvio({ ...dadosEnvio, envio_apartamento: e.target.value })
+                            }
+                            disabled={usarMesmoEndereco}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("envio_cidade")} *
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="envio_cidade"
+                            value={dadosEnvio.envio_cidade}
+                            onChange={(e) =>
+                              setDadosEnvio({ ...dadosEnvio, envio_cidade: e.target.value })
+                            }
+                            disabled={usarMesmoEndereco}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Distrito e Código Postal */}
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("envio_distrito")}
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="envio_distrito"
+                            value={dadosEnvio.envio_distrito}
+                            onChange={(e) =>
+                              setDadosEnvio({ ...dadosEnvio, envio_distrito: e.target.value })
+                            }
+                            disabled={usarMesmoEndereco}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("envio_codigo_postal")} *
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="envio_codigo_postal"
+                            value={dadosEnvio.envio_codigo_postal}
+                            onChange={(e) =>
+                              setDadosEnvio({ ...dadosEnvio, envio_codigo_postal: e.target.value })
+                            }
+                            disabled={usarMesmoEndereco}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* País */}
+                      <div className="col-lg-6 col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">
+                            {formatLabel("envio_pais")}
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="envio_pais"
+                            value={dadosEnvio.envio_pais}
+                            onChange={(e) =>
+                              setDadosEnvio({ ...dadosEnvio, envio_pais: e.target.value })
+                            }
+                            disabled={usarMesmoEndereco}
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     <button className="btn btn-primary btnhover mt-2">Guardar Alterações</button>

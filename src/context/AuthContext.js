@@ -58,16 +58,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await addWishList({ productId });
       
-      if (response.success) {
+      if (response) {
         // Atualiza o estado local
         await loadWishlist(); // Recarrega a wishlist completa
-        return { success: true, message: 'Produto adicionado à lista de desejos' };
-      } else {
-        return { success: false, message: 'Erro ao adicionar produto à lista de desejos' };
+        
       }
     } catch (error) {
       console.error('Erro ao adicionar à wishlist:', error);
-      return { success: false, message: 'Erro ao adicionar produto à lista de desejos' };
+     
     }
   };
 

@@ -112,7 +112,7 @@ function ShopCart() {
                   <tbody>
                     <tr>
                       <td>Total</td>
-                      <td>€{total.toFixed(2)}</td>
+                      <td>{total.toFixed(2)} €</td>
                     </tr>
                   </tbody>
                 </table>
