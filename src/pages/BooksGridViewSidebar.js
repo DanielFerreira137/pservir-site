@@ -11,13 +11,13 @@ import CounterSection from "../elements/CounterSection";
 import ShopSidebar from "../elements/ShopSidebar";
 
 import { Modal, Button } from "react-bootstrap";
-
+import { useCart } from "../context/CartContext";
 function BooksGridViewSidebar() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
 
   const [showFilters, setShowFilters] = useState(false);
-
+  const { addToCart } = useCart();
   const filtersFromURL = {
     authors: searchParams.get("author_product")?.split(",") || [],
     tags: searchParams.get("tags")?.split(",") || [],
@@ -127,7 +127,7 @@ function BooksGridViewSidebar() {
                 <div className="d-flex justify-content-between align-items-center">
                 <h4 className="title">{
                     searchParams.get("category") === "mostSold" ?  "Mais Vendidos" :
-                    searchParams.get("category") === "mostLiked" ? "Mais Curtidos" :
+                    searchParams.get("category") === "mostLiked" ? "Mais Populares" :
                     searchParams.get("category") === "opportunities" ? "Oportunidades" :
                     searchParams.get("category") === null ? "Todos os Livros" : 
                     searchParams.get("category")
@@ -235,7 +235,7 @@ function BooksGridViewSidebar() {
                           />
                           {data.promotion?.promotionId !== 0 && (
                             <div className="badge text-white position-absolute top-0 start-0 m-2 fw-bold">
-                              -{data.promotion.discount}
+                              -{data.promotion?.discount}
                             </div>
                           )}
                         </div>
@@ -249,7 +249,7 @@ function BooksGridViewSidebar() {
                           <ul className="dz-tags">
                             {data.tags.map((tag, index) => (
                               <li key={index}>
-                                <Link>{tag}</Link>
+                                <Link>{tag.toUpperCase()}</Link>
                               </li>
                             ))}
                           </ul>
@@ -289,8 +289,24 @@ function BooksGridViewSidebar() {
                           </div>
                           <div className="book-footer">
                             <Link
-                              to={"/shop-cart"}
+                              
                               className="btn btn-secondary box-btn btnhover btnhover2"
+                              onClick={(e) => {
+                                
+                                // Adiciona ao carrinho
+                                addToCart({
+                                  id: data.product_id,
+                                  title: data.title,
+                                  price:
+                                  data.promotion?.promotionId !== 0
+                                      ? data.promotion.priceWithDiscount
+                                      : data.price,
+                                  image: data.image,
+                                  number: 1,
+                                  originalPrice: data.price,
+                                  discount: data.price - (data.promotion?.promotionId !== 0 ? data.promotion.priceWithDiscount : data.price),
+                                })
+                              }}
                             >
                               <i className="flaticon-shopping-cart-1 m-r10"></i>{" "}
                               Carrinho

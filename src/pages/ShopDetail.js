@@ -149,7 +149,7 @@ function ShopDetail() {
         setLoading(true);
 
         const bookData = await getProduct(id);
-
+        console.log("Dados do livro:", bookData);
         if (!bookData) {
           setError("Livro não encontrado");
           return;
@@ -161,11 +161,8 @@ function ShopDetail() {
           title: bookData.title,
           author: bookData.author,
           image: getBookImage(bookData.image),
-          price: bookData.price,
-          originalPrice: calculateOriginalPrice(
-            bookData.price,
-            bookData.promotion?.promotionId
-          ),
+          price: bookData.promotion.priceWithDiscount ? bookData.promotion.priceWithDiscount : bookData.price,
+          originalPrice: bookData.promotion.promotionId ? bookData.price : null,
           rating: getDefaultRating(),
           publisher: bookData.publisher,
           year: bookData.year,
@@ -402,6 +399,15 @@ function ShopDetail() {
                                 image: book.image,
                                 number: count > 0 ? count : 1,
                               });
+                              addToCart({
+                                id: book.id,
+                                title: book.title,
+                                price: book.price,
+                                image: book.image,
+                                number: 1,
+                                originalPrice: book.originalPrice,
+                                discount: book.originalPrice - (book.price || 0),
+                              })
                             }}
                           >
                             <i className="flaticon-shopping-cart-1"></i>
@@ -483,10 +489,10 @@ function ShopDetail() {
                                   book.tags.map((tag, index) => (
                                     <Link
                                       key={index}
-                                      to={`/search?tag=${tag}`}
+                                      to={`/books-list-view-sidebar?tags=${tag}`}
                                       className="badge me-1"
                                     >
-                                      {tag}
+                                      {tag.toUpperCase()}
                                     </Link>
                                   ))
                                 ) : (
@@ -687,19 +693,15 @@ function ShopDetail() {
             </div>
           </div>
         </section>
-        <div className="bg-white py-5">
-          <div className="container">
-            <ClientsSlider />
-          </div>
-        </div>
+       
         <section className="content-inner">
           <div className="container">
             <div className="row sp15">
-              <CounterSection />
+             
             </div>
           </div>
         </section>
-        <NewsLetter />
+        
       </div>
     </>
   );

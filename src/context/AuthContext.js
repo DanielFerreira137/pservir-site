@@ -78,16 +78,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await removeWishList({ productId });
       
-      if (response.success) {
+      if (response) {
         // Atualiza o estado local
         await loadWishlist(); // Recarrega a wishlist completa
-        return { success: true, message: 'Produto removido da lista de desejos' };
-      } else {
-        return { success: false, message: 'Erro ao remover produto da lista de desejos' };
-      }
+       
+      } 
     } catch (error) {
       console.error('Erro ao remover da wishlist:', error);
-      return { success: false, message: 'Erro ao remover produto da lista de desejos' };
+    
     }
   };
 

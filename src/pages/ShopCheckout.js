@@ -5,20 +5,38 @@ import { useCart } from "../context/CartContext";
 //Components
 import PageTitle from "./../layouts/PageTitle";
 import { Link } from "react-router-dom";
+// API
+import { postOrder } from "../api/routes/order/postOrders"; // Ajuste o caminho conforme sua estrutura
 //images
-import book1 from "./../assets/images/books/grid/book1.jpg";
-import book2 from "./../assets/images/books/grid/book2.jpg";
-import book3 from "./../assets/images/books/grid/book3.jpg";
-import book4 from "./../assets/images/books/grid/book4.jpg";
-import book5 from "./../assets/images/books/grid/book5.jpg";
 
-const orderItem = [
-  { image: book3, title: "Produto Item 5", price: "28.00" },
-  { image: book2, title: "Produto Item 4", price: "26.00" },
-  { image: book4, title: "Produto Item 3", price: "30.00" },
-  { image: book5, title: "Produto Item 2", price: "36.00" },
-  { image: book1, title: "Produto Item 1", price: "27.00" },
-];
+/**
+ * @typedef {Object} OrderItem
+ * @property {number} product_id
+ * @property {number} quantity
+ * @property {number} price
+ * @property {number} discount
+ * @property {number} total
+ */
+
+/**
+ * @typedef {Object} OrderData
+ * @property {string} status
+ * @property {number} subtotal
+ * @property {number} discount
+ * @property {number} tax
+ * @property {number} shipping_cost
+ * @property {number} total
+ * @property {string} payment_method
+ * @property {string} payment_status
+ * @property {string} shipping_method
+ * @property {string} shipping_status
+ * @property {string} billing_address
+ * @property {string} shipping_address
+ * @property {string} invoice_number
+ * @property {string} notes
+ * @property {string} customer_notes
+ * @property {OrderItem[]} items
+ */
 
 const SingleInput = ({
   title,
@@ -45,13 +63,17 @@ const SingleInput = ({
 
 function ShopCheckout() {
   const { user } = useAuth();
-  const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const [accordBtn, setAccordBtn] = useState(false);
   const [criarConta, setCriarConta] = useState(false);
   const [usarMesmoEndereco, setUsarMesmoEndereco] = useState(true);
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.number * parseFloat(item.price),
+    0
+  );
+  const discountOnOrder = cartItems.reduce(
+    (sum, item) => sum + parseFloat(item.discount || 0),
     0
   );
 
@@ -86,18 +108,12 @@ function ShopCheckout() {
     telefone: "",
   });
 
-  // Estados para pagamento
-  const [dadosPagamento, setDadosPagamento] = useState({
-    nomeCartao: "",
-    tipoCartao: "",
-    numeroCartao: "",
-    codigoVerificacao: "",
-  });
-
   const [observacoes, setObservacoes] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [dadosMB, setDadosMB] = useState(null);
+  const [error, setError] = useState(null);
+
   // Carregar dados do usuário quando disponível
   useEffect(() => {
     if (user) {
@@ -135,11 +151,6 @@ function ShopCheckout() {
           pais: shippingParts[5] || "Portugal",
         });
       }
-
-      setDadosPagamento((prev) => ({
-        ...prev,
-        nomeCartao: user.name || "",
-      }));
     }
   }, [user, usarMesmoEndereco]);
 
@@ -166,29 +177,107 @@ function ShopCheckout() {
     }
   };
 
-  const handleSubmit = (e) => {
-    setLoading(true);
-    setDadosMB(null);
-    e.preventDefault();
-    // Aqui você processaria o pedido
-    console.log("Dados do pedido:", {
-      faturacao: dadosFaturacao,
-      envio: usarMesmoEndereco ? dadosFaturacao : dadosEnvio,
-      pagamento: dadosPagamento,
-      observacoes,
-      criarConta: criarConta ? { password } : null,
-    });
+  /**
+   * Gera o número da fatura
+   * @returns {string}
+   */
+  const generateInvoiceNumber = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const timestamp = now.getTime().toString().slice(-6);
+    return `INV-${year}-${timestamp}`;
+  };
 
-    // Simula chamada a API
-    setTimeout(() => {
-      setDadosMB({
-        entidade: "23432",
-        referencia: "660 742 974",
-        valor: total.toFixed(2),
-        dataLimite: "2025-06-04",
+  /**
+   * Formata os dados de endereço para string
+   * @param {Object} dados - Dados do endereço
+   * @returns {string}
+   */
+  const formatAddress = (dados) => {
+    return `${dados.morada};${dados.apartamento};${dados.cidade};${dados.distrito};${dados.codigoPostal};${dados.pais}`;
+  };
+
+  /**
+   * Prepara os dados do pedido para envio à API
+   * @returns {OrderData}
+   */
+  const prepareOrderData = () => {
+    const enderecoEnvio = usarMesmoEndereco ? dadosFaturacao : dadosEnvio;
+
+    const orderItems = cartItems.map((item) => ({
+      product_id: item.id,
+      quantity: item.number,
+      price: parseFloat(item.price),
+      discount: parseFloat(item.discount).toFixed(2) || 0,
+      total: item.number * parseFloat(item.price),
+    }));
+  
+
+    return {
+      status: "pendente",
+      subtotal: subtotal,
+      discount: discountOnOrder.toFixed(2) || 0,
+      tax: 0,
+      shipping_cost: 0,
+      total: total,
+      payment_method: "Multibanco",
+      payment_status: "pendente",
+      shipping_method: "correio",
+      shipping_status: "pendente",
+      billing_address: formatAddress(dadosFaturacao),
+      shipping_address: formatAddress(enderecoEnvio),
+      invoice_number: generateInvoiceNumber(),
+      notes: observacoes,
+      customer_notes: observacoes,
+      items: orderItems,
+    };
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setDadosMB(null);
+
+    try {
+      // Preparar dados do pedido
+      const orderData = prepareOrderData();
+
+      console.log("Dados do pedido:", {
+        faturacao: dadosFaturacao,
+        envio: usarMesmoEndereco ? dadosFaturacao : dadosEnvio,
+        pagamento: "Pagamento por Entidade/Referência Multibanco",
+        observacoes,
+        criarConta: criarConta ? { password } : null,
+        orderData,
       });
+
+      // Enviar pedido para API
+      const response = await postOrder(orderData);
+
+      console.log("Resposta da API:", response);
+
+      // Simular dados do Multibanco (substitua pela resposta real da API)
+      const dadosMultibanco = {
+        entidade: response.payment_entity || "23432",
+        referencia: response.payment_reference || "660 742 974",
+        valor: total.toFixed(2),
+        dataLimite: response.payment_deadline || "2025-06-18",
+      };
+
+      setDadosMB(dadosMultibanco);
+
+      // Limpar carrinho após sucesso (opcional)
+      // clearCart();
+    } catch (error) {
+      console.error("Erro ao processar pedido:", error);
+      setError(error.message || "Erro ao processar o pedido. Tente novamente.");
+    } finally {
       setLoading(false);
-    }, 2000);
+      // Temporário para debug
+
+      localStorage.removeItem("shopping_cart");
+    }
   };
 
   return (
@@ -560,14 +649,23 @@ function ShopCheckout() {
                   </p>
 
                   <div className="form-group">
+                    {error && (
+                      <div className="alert alert-danger" role="alert">
+                        {error}
+                      </div>
+                    )}
+
                     {!dadosMB && (
                       <div className="form-group">
                         <button
                           className="btn btn-primary btnhover"
                           type="submit"
                           onClick={handleSubmit}
+                          disabled={loading}
                         >
-                          Finalizar Pedido Agora
+                          {loading
+                            ? "Processando..."
+                            : "Finalizar Pedido Agora"}
                         </button>
                       </div>
                     )}

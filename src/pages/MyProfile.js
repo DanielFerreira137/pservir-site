@@ -138,7 +138,7 @@ function MyProfile() {
   };
 
   const paginasPerfil = [
-    { to: "/shop-cart", icons: "flaticon-shopping-cart-1", name: "Meu Carrinho" },
+    { to: "/shop-order", icons: "flaticon-shopping-cart-1", name: "As Minhas Encomendas" },
     { to: "/wishlist", icons: "far fa-heart", name: "Favoritos" },
     { to: "/help-desk", icons: "far fa-id-card", name: "Ajuda" },
     { to: "/privacy-policy", icons: "fa fa-key", name: "Política de Privacidade" },

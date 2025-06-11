@@ -256,7 +256,7 @@ function Header() {
                             </div>
                           </Link>
                           <Link
-                            to={"/shop-cart"}
+                            to={"/shop-order"}
                             className="dropdown-item d-flex justify-content-between align-items-center ai-icon"
                           >
                             <div>

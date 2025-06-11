@@ -130,6 +130,8 @@ export default function RecomendedSlider() {
                             : d.price,
                         image: d.image,
                         number: 1,
+                        originalPrice: d.price,
+                        discount: d.price - (d.promotion?.promotionId !== 0 ? d.promotion.priceWithDiscount : d.price),
                       })
                     }
                   >

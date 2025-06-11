@@ -13,13 +13,15 @@ import ShopSidebar from "../elements/ShopSidebar";
 //Images
 import book16 from "./../assets/images/books/grid/book16.jpg";
 import book12 from "./../assets/images/books/grid/book12.jpg";
+//cart
+import { useCart } from "../context/CartContext";
 
 function BooksListViewSidebar() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
 
   const [showFilters, setShowFilters] = useState(false);
-
+  const { addToCart } = useCart();
   const filtersFromURL = {
     categories: searchParams.get("category")?.split(",") || [],
     authors: searchParams.get("author_product")?.split(",") || [],
@@ -129,7 +131,7 @@ function BooksListViewSidebar() {
                 <div className="d-flex justify-content-between align-items-center">
                   <h4 className="title">{
                     searchParams.get("category") === "mostSold" ?  "Mais Vendidos" :
-                    searchParams.get("category") === "mostLiked" ? "Mais Curtidos" :
+                    searchParams.get("category") === "mostLiked" ? "Mais Populares" :
                     searchParams.get("category") === "opportunities" ? "Oportunidades" :
                     searchParams.get("category") === null ? "Todos os Livros" : 
                     searchParams.get("category")
@@ -329,8 +331,24 @@ function BooksListViewSidebar() {
                               </ul>
                               <div className="d-flex">
                                 <Link
-                                  to={"/shop-cart"}
+                                  
                                   className="btn btn-secondary btnhover btnhover2"
+                                  onClick={(e) => {
+                                
+                                    // Adiciona ao carrinho
+                                    addToCart({
+                                      id: data.product_id,
+                                      title: data.title,
+                                      price:
+                                      data.promotion?.promotionId !== 0
+                                          ? data.promotion.priceWithDiscount
+                                          : data.price,
+                                      image: data.image,
+                                      number: 1,
+                                      originalPrice: data.price,
+                                      discount: data.price - (data.promotion?.promotionId !== 0 ? data.promotion.priceWithDiscount : data.price),
+                                    })
+                                  }}
                                 >
                                   <i className="flaticon-shopping-cart-1 m-r10"></i>{" "}
                                   Carrinho

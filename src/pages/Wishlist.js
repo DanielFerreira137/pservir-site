@@ -90,8 +90,8 @@ function ListaDesejos() {
                     <p className="mb-4">
                       Adicione produtos à sua lista de desejos para vê-los aqui.
                     </p>
-                    <Link to="/loja" className="btn btn-primary btnhover">
-                      Continuar Comprando
+                    <Link to="/books-list-view-sidebar" className="btn btn-primary btnhover">
+                      Continuar a Comprar
                     </Link>
                   </div>
                 ) : (

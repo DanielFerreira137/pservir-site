@@ -26,7 +26,7 @@ function ShopCart() {
   );
 
   const total = subtotal; // Add shipping/coupon logic if needed
-
+  console.log('Cart Items:', cartItems);
   return (
     <div className="page-content">
       <PageTitle parentPage="Loja" childPage="Carrinho" />
@@ -41,6 +41,7 @@ function ShopCart() {
                       <th>Produto</th>
                       <th>Nome do produto</th>
                       <th>Preço unitário</th>
+                      <th >Desconto</th>
                       <th>Quantidade</th>
                       <th>Total</th>
                       <th className="text-end">Remover</th>
@@ -59,7 +60,10 @@ function ShopCart() {
                           </td>
                           <td className="product-item-name">{item.title}</td>
                           <td className="product-item-price">
-                            {parseFloat(item.price).toFixed(2)} €
+                            {parseFloat(item.originalPrice).toFixed(2)} €
+                          </td>
+                          <td className="product-item-price">
+                            {parseFloat(item.discount).toFixed(2)} €
                           </td>
                           <td className="product-item-quantity">
                             <div className="quantity btn-quantity style-1 me-3">
@@ -88,6 +92,7 @@ function ShopCart() {
                           <td className="product-item-totle">
                             {(item.number * parseFloat(item.price)).toFixed(2)} €
                           </td>
+                          
                           <td className="product-item-close">
                             <Link
                               to="#"
