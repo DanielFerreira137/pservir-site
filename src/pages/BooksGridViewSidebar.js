@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Collapse, Dropdown } from "react-bootstrap";
-import { useLocation } from "react-router-dom";
+import { Collapse, Dropdown, Modal, Button } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
 //Component
 import ClientsSlider from "../components/Home/ClientsSlider";
 import NewsLetter from "../components/NewsLetter";
@@ -9,18 +9,25 @@ import NewsLetter from "../components/NewsLetter";
 //element
 import CounterSection from "../elements/CounterSection";
 import ShopSidebar from "../elements/ShopSidebar";
+import FunctionalFilters from "./functional_filters_component"; // Importar o componente de filtros
 
-import { Modal, Button } from "react-bootstrap";
 import { useCart } from "../context/CartContext";
+
+// Debug log
+console.log('ShopSidebar imported:', ShopSidebar);
+
 function BooksGridViewSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
 
   const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
   const { addToCart } = useCart();
+  
   const filtersFromURL = {
+    categories: searchParams.get("tags")?.split(",") || [],
     authors: searchParams.get("author_product")?.split(",") || [],
-    tags: searchParams.get("tags")?.split(",") || [],
     publishers: searchParams.get("publisher_product")?.split(",") || [],
     years: searchParams.get("date_product")?.split(",") || [],
     languages: searchParams.get("language")?.split(",") || [],
@@ -28,12 +35,23 @@ function BooksGridViewSidebar() {
     price_max: parseFloat(searchParams.get("price_max")) || 1000,
     promotion_id: searchParams.get("promotion_id") || "",
   };
+  
   console.log("Filters from URL:", filtersFromURL);
   
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const productsPerPage = 20;
+
+  // Detectar mudanças de tamanho da tela
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 992);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Calcular páginas
   const totalPages = Math.ceil(totalProducts / productsPerPage);
@@ -80,13 +98,9 @@ function BooksGridViewSidebar() {
     fetchProducts();
   }, [location.search]);
 
-  const [accordBtn, setAccordBtn] = useState();
-  const [selectBtn, setSelectBtn] = useState("Newest");
-
   // Função para mudar de página
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-    // Scroll para o topo da lista de produtos
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -98,7 +112,6 @@ function BooksGridViewSidebar() {
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
     
-    // Ajustar startPage se estivermos no final
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -116,30 +129,34 @@ function BooksGridViewSidebar() {
         <div className="content-inner-1 border-bottom">
           <div className="container">
             <div className="row ">
+              {/* Sidebar Desktop */}
               <div className="col-xl-3">
                 <ShopSidebar
-                  initialFilters={filtersFromURL}
                   currentLink="/books-grid-view-sidebar"
                 />
               </div>
 
               <div className="col-xl-9">
-                <div className="d-flex justify-content-between align-items-center">
-                <h4 className="title">{
+                <div className="d-flex justify-content-between align-items-center ">
+                  <h4 className="title">{
                     searchParams.get("category") === "mostSold" ?  "Mais Vendidos" :
                     searchParams.get("category") === "mostLiked" ? "Mais Populares" :
                     searchParams.get("category") === "opportunities" ? "Oportunidades" :
                     searchParams.get("category") === null ? "Todos os Livros" : 
                     searchParams.get("category")
-                    }</h4>
+                  }</h4>
+                  
+                  {/* Botão Filter - apenas mobile */}
                   <Button
                     variant="primary"
                     onClick={() => setShowFilters(true)}
                     className="d-xl-none"
                   >
+                    <i className="fas fa-filter me-2"></i>
                     Filtros
                   </Button>
                 </div>
+
                 <div className="filter-area m-b30">
                   <div className="grid-area">
                     <div className="shop-tab">
@@ -318,7 +335,7 @@ function BooksGridViewSidebar() {
                   ))}
                 </div>
                 
-                {/* Paginação atualizada */}
+                {/* Paginação */}
                 <div className="row page mt-0">
                   <div className="col-md-6">
                     <p className="page-text">
@@ -407,28 +424,58 @@ function BooksGridViewSidebar() {
             </div>
           </div>
         </div>
-      
-       
+        
         <NewsLetter />
       </div>
+
+      {/* Modal para Filtros Mobile */}
       <Modal
         show={showFilters}
         onHide={() => setShowFilters(false)}
         size="lg"
-        className="d-xl-none"
-        dialogClassName="modal-fullscreen-sm-down"
+        fullscreen="lg-down"
+        className="filters-modal"
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Filtros</Modal.Title>
+        <Modal.Header closeButton className="border-bottom bg-light">
+          <Modal.Title>
+            <i className="fas fa-filter me-2"></i>
+            Filtros de Pesquisa
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <ShopSidebar
-            initialFilters={filtersFromURL}
+        <Modal.Body className="p-0" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+          {/* Usar o componente FunctionalFilters importado */}
+          <FunctionalFilters
+            currentLink="/books-grid-view-sidebar"
             onClose={() => setShowFilters(false)}
           />
         </Modal.Body>
       </Modal>
+
+      {/* CSS customizado */}
+      <style jsx>{`
+        .filters-modal .modal-dialog {
+          margin: 0;
+        }
+        
+        @media (max-width: 992px) {
+          .filters-modal .modal-dialog {
+            width: 100vw;
+            max-width: 100vw;
+            height: 100vh;
+            margin: 0;
+          }
+          
+          .filters-modal .modal-content {
+            height: 100vh;
+            border-radius: 0;
+            border: none;
+          }
+        }
+        
+       
+      `}</style>
     </>
   );
 }
+
 export default BooksGridViewSidebar;

@@ -59,6 +59,12 @@ function Header() {
   /* for open menu Toggle btn  */
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const showSidebar = () => setSidebarOpen(!sidebarOpen);
+  
+  // Nova função para fechar a sidebar
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+    setActive(""); // Também fecha submenus
+  };
   /*  Toggle btn End  */
 
   useEffect(() => {
@@ -80,6 +86,29 @@ function Header() {
       setActive("");
     }
   };
+  
+  // Função para lidar com clicks em links do menu
+  const handleMenuClick = (data) => {
+    if (data.content) {
+      // Se tem submenu, apenas toggle o submenu
+      handleMenuActive(data.title);
+    } else {
+      // Se não tem submenu, fecha a sidebar
+      closeSidebar();
+    }
+  };
+
+  // Função para lidar com clicks em links do submenu
+  const handleSubMenuClick = () => {
+    closeSidebar();
+  };
+
+  // Função para lidar com logout
+  const handleLogout = () => {
+    logout();
+    closeSidebar();
+  };
+
   // Menu dropdown list End
 
   return (
@@ -373,7 +402,7 @@ function Header() {
               id="navbarNavDropdown"
             >
               <div className="logo-header logo-dark">
-                <Link to={"#"}>
+                <Link to={"#"} onClick={closeSidebar}>
                   <img src={logo} alt="" />
                 </Link>
               </div>
@@ -407,7 +436,7 @@ function Header() {
                     >
                       <Link
                         to={data.content ? "#" : data.to}
-                        onClick={() => handleMenuActive(data.title)}
+                        onClick={() => handleMenuClick(data)}
                       >
                         <span>{data.title}</span>
                       </Link>
@@ -418,7 +447,9 @@ function Header() {
                               data.content.map((data, index) => {
                                 return (
                                   <li key={index}>
-                                    <Link to={data.to}>{data.title}</Link>
+                                    <Link to={data.to} onClick={handleSubMenuClick}>
+                                      {data.title}
+                                    </Link>
                                   </li>
                                 );
                               })}
@@ -437,11 +468,15 @@ function Header() {
                     <ul className="nav navbar-nav">
                       {isAuthenticated() ? (
                         <li>
-                          <Link  to={"/my-profile"}>Perfil</Link>
+                          <Link to={"/my-profile"} onClick={closeSidebar}>
+                            Perfil
+                          </Link>
                         </li>
                       ) : (
                         <li>
-                          <Link to={"/shop-login"}>Entrar</Link>
+                          <Link to={"/shop-login"} onClick={closeSidebar}>
+                            Entrar
+                          </Link>
                         </li>
                       )}
                     </ul>

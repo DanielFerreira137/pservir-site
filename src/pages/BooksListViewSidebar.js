@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Collapse, Dropdown } from "react-bootstrap";
+import { Collapse, Dropdown, Modal, Button } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
 //Component
 import ClientsSlider from "../components/Home/ClientsSlider";
@@ -9,6 +9,7 @@ import NewsLetter from "../components/NewsLetter";
 //element
 import CounterSection from "../elements/CounterSection";
 import ShopSidebar from "../elements/ShopSidebar";
+import FunctionalFilters from "./functional_filters_component"; // Importar o componente de filtros
 
 //Images
 import book16 from "./../assets/images/books/grid/book16.jpg";
@@ -21,7 +22,9 @@ function BooksListViewSidebar() {
   const searchParams = new URLSearchParams(location.search);
 
   const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
   const { addToCart } = useCart();
+
   const filtersFromURL = {
     categories: searchParams.get("category")?.split(",") || [],
     authors: searchParams.get("author_product")?.split(",") || [],
@@ -39,6 +42,16 @@ function BooksListViewSidebar() {
   const [totalProducts, setTotalProducts] = useState(0);
   const productsPerPage = 20;
 
+  // Detectar mudanças de tamanho da tela
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 992);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Calcular páginas
   const totalPages = Math.ceil(totalProducts / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
@@ -47,27 +60,36 @@ function BooksListViewSidebar() {
 
   useEffect(() => {
     console.log("Category parameter:", searchParams.get("category"));
-    
+
     const fetchProducts = async () => {
       try {
         let data;
-        
+
         if (!searchParams.get("category")) {
           console.log("No category filter applied, redirecting to books list.");
           const queryString = location.search;
-          const response = await fetch(process.env.REACT_APP_API + `/products/filter${queryString}`);
+          const response = await fetch(
+            process.env.REACT_APP_API + `/products/filter${queryString}`
+          );
           data = await response.json();
         } else if (searchParams.get("category") === "mostSold") {
-          const response = await fetch(process.env.REACT_APP_API + `/products/list/mostSold`);
+          const response = await fetch(
+            process.env.REACT_APP_API + `/products/list/mostSold`
+          );
           data = await response.json();
         } else if (searchParams.get("category") === "mostLiked") {
-          const response = await fetch(process.env.REACT_APP_API + `/products/list/mostLiked`);
+          const response = await fetch(
+            process.env.REACT_APP_API + `/products/list/mostLiked`
+          );
           data = await response.json();
         } else if (searchParams.get("category") === "opportunities") {
-          const response = await fetch(process.env.REACT_APP_API + `/products/filter`);
+          const response = await fetch(
+            process.env.REACT_APP_API + `/products/filter`
+          );
           data = await response.json();
           const filteredProducts = data.data.filter(
-            (product) => product.promotion && product.promotion.promotionId !== 0
+            (product) =>
+              product.promotion && product.promotion.promotionId !== 0
           );
           data.data = filteredProducts;
         }
@@ -91,26 +113,26 @@ function BooksListViewSidebar() {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
     // Scroll para o topo da lista de produtos
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Gerar números das páginas para mostrar
   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxVisiblePages = 5;
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     // Ajustar startPage se estivermos no final
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
-    
+
     return pageNumbers;
   };
 
@@ -120,7 +142,8 @@ function BooksListViewSidebar() {
         <div className="content-inner-1 border-bottom">
           <div className="container">
             <div className="row ">
-              <div className="col-xl-3">
+              {/* Sidebar Desktop */}
+              <div className="col-xl-3 d-none d-xl-block">
                 <ShopSidebar
                   initialFilters={filtersFromURL}
                   currentLink="/books-list-view-sidebar"
@@ -128,18 +151,30 @@ function BooksListViewSidebar() {
               </div>
 
               <div className="col-xl-9">
-                <div className="d-flex justify-content-between align-items-center">
-                  <h4 className="title">{
-                    searchParams.get("category") === "mostSold" ?  "Mais Vendidos" :
-                    searchParams.get("category") === "mostLiked" ? "Mais Populares" :
-                    searchParams.get("category") === "opportunities" ? "Oportunidades" :
-                    searchParams.get("category") === null ? "Todos os Livros" : 
-                    searchParams.get("category")
-                    }</h4>
-                  <Link to={"#"} className="btn btn-primary panel-btn">
-                    Filter
-                  </Link>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h4 className="title">
+                    {searchParams.get("category") === "mostSold"
+                      ? "Mais Vendidos"
+                      : searchParams.get("category") === "mostLiked"
+                      ? "Mais Populares"
+                      : searchParams.get("category") === "opportunities"
+                      ? "Oportunidades"
+                      : searchParams.get("category") === null
+                      ? "Todos os Livros"
+                      : searchParams.get("category")}
+                  </h4>
+
+                  {/* Botão Filter - apenas mobile */}
+                  <Button
+                    variant="primary"
+                    onClick={() => setShowFilters(true)}
+                    className="d-xl-none"
+                  >
+                    <i className="fas fa-filter me-2"></i>
+                    Filtros
+                  </Button>
                 </div>
+
                 <div className="filter-area m-b30">
                   <div className="grid-area">
                     <div className="shop-tab">
@@ -181,7 +216,7 @@ function BooksListViewSidebar() {
                         </li>
                         <li className="nav-item">
                           <Link
-                             to={
+                            to={
                               searchParams.get("category") != null
                                 ? "/books-grid-view-sidebar?category=" +
                                   searchParams.get("category")
@@ -227,7 +262,7 @@ function BooksListViewSidebar() {
                     <div className="widget widget_services style-2"></div>
                   </div>
                 </Collapse>
-                
+
                 {/* Renderizar apenas os produtos da página atual */}
                 {currentProducts &&
                   currentProducts.map((data, i) => (
@@ -272,7 +307,7 @@ function BooksListViewSidebar() {
                               </h4>
                             </div>
                             <div className="price">
-                              {data.promotion.promotionId !== 0 ? (
+                              {data.promotion?.promotionId !== 0 ? (
                                 <>
                                   <span className="price-num text-primary">
                                     {data.promotion.priceWithDiscount} €
@@ -293,11 +328,14 @@ function BooksListViewSidebar() {
                             <div className="dz-rating-box">
                               <div>
                                 <p className="dz-para">
-                                  {data.description ||
+                                  {data.description  ||
                                     "No description available."}
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;
                                 </p>
                                 <div>
-                                  {data.promotion.promotionId !== 0 ? (
+                                  {data.promotion?.promotionId !== 0 ? (
                                     <>
                                       <Link
                                         to={"/pricing"}
@@ -330,29 +368,31 @@ function BooksListViewSidebar() {
                                 </li>
                               </ul>
                               <div className="d-flex">
-                                <Link
-                                  
+                                <button
                                   className="btn btn-secondary btnhover btnhover2"
-                                  onClick={(e) => {
-                                
+                                  onClick={() => {
                                     // Adiciona ao carrinho
                                     addToCart({
                                       id: data.product_id,
                                       title: data.title,
                                       price:
-                                      data.promotion?.promotionId !== 0
+                                        data.promotion?.promotionId !== 0
                                           ? data.promotion.priceWithDiscount
                                           : data.price,
                                       image: data.image,
                                       number: 1,
                                       originalPrice: data.price,
-                                      discount: data.price - (data.promotion?.promotionId !== 0 ? data.promotion.priceWithDiscount : data.price),
-                                    })
+                                      discount:
+                                        data.price -
+                                        (data.promotion?.promotionId !== 0
+                                          ? data.promotion.priceWithDiscount
+                                          : data.price),
+                                    });
                                   }}
                                 >
-                                  <i className="flaticon-shopping-cart-1 m-r10"></i>{" "}
+                                  <i className="flaticon-shopping-cart-1 me-2"></i>
                                   Carrinho
-                                </Link>
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -365,14 +405,20 @@ function BooksListViewSidebar() {
                 <div className="row page">
                   <div className="col-md-6">
                     <p className="page-text">
-                      Mostrando {startIndex + 1} a {Math.min(endIndex, totalProducts)} de {totalProducts} produtos
+                      Mostrando {startIndex + 1} a{" "}
+                      {Math.min(endIndex, totalProducts)} de {totalProducts}{" "}
+                      produtos
                     </p>
                   </div>
                   <div className="col-md-6">
                     <nav aria-label="Blog Pagination">
                       <ul className="pagination style-1 p-t20">
                         {/* Botão Anterior */}
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <li
+                          className={`page-item ${
+                            currentPage === 1 ? "disabled" : ""
+                          }`}
+                        >
                           <button
                             className="page-link prev"
                             onClick={() => handlePageChange(currentPage - 1)}
@@ -381,7 +427,7 @@ function BooksListViewSidebar() {
                             Anterior
                           </button>
                         </li>
-                        
+
                         {/* Primeira página */}
                         {getPageNumbers()[0] > 1 && (
                           <>
@@ -400,23 +446,27 @@ function BooksListViewSidebar() {
                             )}
                           </>
                         )}
-                        
+
                         {/* Números das páginas */}
                         {getPageNumbers().map((pageNumber) => (
                           <li key={pageNumber} className="page-item">
                             <button
-                              className={`page-link ${currentPage === pageNumber ? 'active' : ''}`}
+                              className={`page-link ${
+                                currentPage === pageNumber ? "active" : ""
+                              }`}
                               onClick={() => handlePageChange(pageNumber)}
                             >
                               {pageNumber}
                             </button>
                           </li>
                         ))}
-                        
+
                         {/* Última página */}
-                        {getPageNumbers()[getPageNumbers().length - 1] < totalPages && (
+                        {getPageNumbers()[getPageNumbers().length - 1] <
+                          totalPages && (
                           <>
-                            {getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1 && (
+                            {getPageNumbers()[getPageNumbers().length - 1] <
+                              totalPages - 1 && (
                               <li className="page-item disabled">
                                 <span className="page-link">...</span>
                               </li>
@@ -431,9 +481,13 @@ function BooksListViewSidebar() {
                             </li>
                           </>
                         )}
-                        
+
                         {/* Botão Próxima */}
-                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                        <li
+                          className={`page-item ${
+                            currentPage === totalPages ? "disabled" : ""
+                          }`}
+                        >
                           <button
                             className="page-link next"
                             onClick={() => handlePageChange(currentPage + 1)}
@@ -451,6 +505,55 @@ function BooksListViewSidebar() {
           </div>
         </div>
       </div>
+
+      {/* Modal para Filtros Mobile */}
+      <Modal
+        show={showFilters}
+        onHide={() => setShowFilters(false)}
+        size="lg"
+        fullscreen="lg-down"
+        className="filters-modal"
+      >
+        <Modal.Header closeButton className="border-bottom bg-light">
+          <Modal.Title>
+            <i className="fas fa-filter me-2"></i>
+            Filtros de Pesquisa
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body
+          className="p-0"
+          style={{ maxHeight: "calc(100vh - 120px)", overflowY: "auto" }}
+        >
+          {/* Usar o componente FunctionalFilters importado */}
+          <FunctionalFilters
+            currentLink="/books-list-view-sidebar"
+            onClose={() => setShowFilters(false)}
+          />
+        </Modal.Body>
+      </Modal>
+
+      {/* CSS customizado */}
+      <style jsx>{`
+        .filters-modal .modal-dialog {
+          margin: 0;
+        }
+        
+        @media (max-width: 992px) {
+          .filters-modal .modal-dialog {
+            width: 100vw;
+            max-width: 100vw;
+            height: 100vh;
+            margin: 0;
+          }
+          
+          .filters-modal .modal-content {
+            height: 100vh;
+            border-radius: 0;
+            border: none;
+          }
+        }
+        }
+      `}</style>
     </>
   );
 }
