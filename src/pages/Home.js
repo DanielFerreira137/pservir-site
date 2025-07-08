@@ -15,10 +15,10 @@ import NewsLetter from "./../components/NewsLetter";
 import CounterSection from "./../elements/CounterSection";
 
 const iconBlog = [
-  { title: "Quick Delivery", iconClass: "flaticon-power" },
-  { title: "Secure Payment", iconClass: "flaticon-shield " },
-  { title: "Best Quality", iconClass: "flaticon-like" },
-  { title: "Return Guarantee", iconClass: "flaticon-star" },
+  { title: "Entregas Rápidas", iconClass: "flaticon-power" },
+  { title: "Pagamentos Seguros", iconClass: "flaticon-shield " },
+  { title: "Melhor Qualidade", iconClass: "flaticon-like" },
+  { title: "Devolucões Grátis", iconClass: "flaticon-star" },
 ];
 
 function Index1() {
@@ -55,10 +55,7 @@ function Index1() {
                     </div>
                     <div className="icon-content">
                       <h5 className="dz-title m-b10">{data.title}</h5>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor
-                      </p>
+                      
                     </div>
                   </div>
                 </div>

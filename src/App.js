@@ -1,10 +1,10 @@
 import React from "react";
 import Index from "./pages/Index";
 import { AuthProvider } from "./context/AuthContext";
-//Css
+import { CartProvider } from "./context/CartContext";
 import "./assets/css/style.css";
 import "./assets/vendor/swiper/swiper-bundle.min.css";
-import { CartProvider } from "./context/CartContext";
+
 function App() {
   return (
     <div className="App">

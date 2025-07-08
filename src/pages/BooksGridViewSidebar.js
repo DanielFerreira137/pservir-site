@@ -407,18 +407,8 @@ function BooksGridViewSidebar() {
             </div>
           </div>
         </div>
-        <div className="bg-white py-5">
-          <div className="container">
-            <ClientsSlider />
-          </div>
-        </div>
-        <section className="content-inner">
-          <div className="container">
-            <div className="row sp15">
-              <CounterSection />
-            </div>
-          </div>
-        </section>
+      
+       
         <NewsLetter />
       </div>
       <Modal

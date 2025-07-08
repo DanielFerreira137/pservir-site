@@ -28,7 +28,7 @@ function Footer({ footerChange, logoImage }) {
 										<ul>
 											<li><a href="https://www.facebook.com/pservir" target="_blank" rel="noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
 											<li><a href="https://www.instagram.com/pservir" target="_blank" rel="noreferrer"><i className="fa-brands fa-instagram"></i></a></li>
-											<li><a href="https://www.linkedin.com/company/pservir" target="_blank" rel="noreferrer"><i className="fa-brands fa-linkedin"></i></a></li>
+											
 										</ul>
 									</div>
 								</div>

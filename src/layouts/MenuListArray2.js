@@ -26,29 +26,7 @@ export const MenuListArray2 = [
         title: 'Oportunidades',	
         to: '/books-list-view-sidebar?category=opportunities',
     },
-    {
-        title: 'Blog',
-        classsChange: 'sub-menu-down',
-        content:[
-            {
-                title:'Blog Grid',
-                to:'/blog-grid',
-            },
-            {
-                title:'Blog Large Sidebar',
-                to:'/blog-large-sidebar',
-            },
-            {
-                title:'Blog List Sidebar',
-                to:'/blog-list-sidebar',
-            },
-            {
-                title:'Blog Details',
-                to:'/blog-detail',
-            },
-            
-        ],
-    },
+   
     {   
         title: 'Sobre Nós', 	
         to: '/about-us',

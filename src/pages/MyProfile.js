@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import profile from "./../assets/images/profile3.jpg";
 import { useAuth } from "../context/AuthContext";
 import { putCustomer } from "../api/routes/customer/putCustomer";
+import sweetAlert from "sweetalert2";
 
 function MyProfile() {
   const { user, logout } = useAuth();
@@ -129,11 +130,17 @@ function MyProfile() {
     };
 
     try {
+      console. log("Atualizando perfil com os seguintes dados:", payload);
       await putCustomer(payload);
-      alert("Perfil atualizado com sucesso!");
+      sweetAlert.fire({
+        title: "Sucesso!",
+        text: "Perfil atualizado com sucesso.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
     } catch (err) {
       console.error("Erro ao atualizar perfil:", err);
-      alert(err.message || "Erro ao atualizar perfil");
+      
     }
   };
 

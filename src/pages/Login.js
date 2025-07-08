@@ -61,7 +61,7 @@ function Login() {
                 <form onSubmit={handleLogin} className={`col-12 ${forgotPass ? 'd-none' : ''}`}>
                   <h4 className="text-secondary">LOGIN</h4>
                   <p className="font-weight-600">Se tem uma conta connosco, inicie sessão.</p>
-                  {error && <div className="alert alert-danger mb-3">{error}</div>}
+                  {error && <div className="alert alert-danger mb-3">Email ou Password incorreto.</div>}
                   {success && <div className="alert alert-success mb-3">{success}</div>}
 
                   <div className="mb-4">

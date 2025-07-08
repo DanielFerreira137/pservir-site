@@ -28,10 +28,45 @@ export default function RecomendedSlider() {
       <Swiper
         className="swiper-container swiper-two"
         speed={1500}
-        slidesPerView={5}
         spaceBetween={30}
         loop={true}
-      
+        breakpoints={{
+          // Mobile pequeno
+          320: {
+            slidesPerView: 1,
+            spaceBetween: 15,
+          },
+          // Mobile
+          480: {
+            slidesPerView: 1,
+            spaceBetween: 15,
+          },
+          // Tablet pequeno
+          640: {
+            slidesPerView: 2,
+            spaceBetween: 20,
+          },
+          // Tablet
+          768: {
+            slidesPerView: 2.5,
+            spaceBetween: 20,
+          },
+          // Desktop pequeno
+          1024: {
+            slidesPerView: 3,
+            spaceBetween: 25,
+          },
+          // Desktop médio
+          1200: {
+            slidesPerView: 4,
+            spaceBetween: 30,
+          },
+          // Desktop grande
+          1400: {
+            slidesPerView: 5,
+            spaceBetween: 30,
+          },
+        }}
       >
         {data &&
           data.map((d, i) => (
@@ -59,7 +94,8 @@ export default function RecomendedSlider() {
                       style={{
                         width: "100%",
                         height: "100%",
-                        objectFit: "cover",
+                        objectFit: "contain",
+                        objectPosition: "center",
                       }}
                     />
                     {d.promotion?.promotionId !== 0 && (
@@ -97,7 +133,9 @@ export default function RecomendedSlider() {
                     </ul>
 
                     <h4 className="title" style={{ minHeight: "8rem" }}>
-                      <Link to={`/book-details/${d.product_id}`}>{d.title}</Link>
+                      <Link to={`/book-details/${d.product_id}`}>
+                        {d.title}
+                      </Link>
                     </h4>
 
                     {d.author && <span className="author">{d.author}</span>}
@@ -131,7 +169,11 @@ export default function RecomendedSlider() {
                         image: d.image,
                         number: 1,
                         originalPrice: d.price,
-                        discount: d.price - (d.promotion?.promotionId !== 0 ? d.promotion.priceWithDiscount : d.price),
+                        discount:
+                          d.price -
+                          (d.promotion?.promotionId !== 0
+                            ? d.promotion.priceWithDiscount
+                            : d.price),
                       })
                     }
                   >

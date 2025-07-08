@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   const [wishlistLength, setWishlistLength] = useState(0);
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
-  // Carrega a wishlist quando o usuário faz login
+  // Carrega a wishlist quando o Utilizador faz login
   const loadWishlist = async () => {
     if (!user) {
       setWishlist([]);
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
   // Adiciona produto à wishlist
   const addToWishlist = async (productId) => {
     if (!user) {
-      throw new Error('Usuário não autenticado');
+      throw new Error('Utilizador não autenticado');
     }
 
     try {
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
   // Remove produto da wishlist
   const removeFromWishlist = async (productId) => {
     if (!user) {
-      throw new Error('Usuário não autenticado');
+      throw new Error('Utilizador não autenticado');
     }
 
     try {
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  // Carrega wishlist quando usuário muda
+  // Carrega wishlist quando Utilizador muda
   useEffect(() => {
     if (user) {
       loadWishlist();

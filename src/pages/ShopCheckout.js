@@ -62,7 +62,7 @@ const SingleInput = ({
 };
 
 function ShopCheckout() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const [accordBtn, setAccordBtn] = useState(false);
   const [criarConta, setCriarConta] = useState(false);
@@ -211,7 +211,6 @@ function ShopCheckout() {
       discount: parseFloat(item.discount).toFixed(2) || 0,
       total: item.number * parseFloat(item.price),
     }));
-  
 
     return {
       status: "pendente",
@@ -243,14 +242,7 @@ function ShopCheckout() {
       // Preparar dados do pedido
       const orderData = prepareOrderData();
 
-      console.log("Dados do pedido:", {
-        faturacao: dadosFaturacao,
-        envio: usarMesmoEndereco ? dadosFaturacao : dadosEnvio,
-        pagamento: "Pagamento por Entidade/Referência Multibanco",
-        observacoes,
-        criarConta: criarConta ? { password } : null,
-        orderData,
-      });
+      console.log("Dados do pedido:", orderData);
 
       // Enviar pedido para API
       const response = await postOrder(orderData);
@@ -481,7 +473,6 @@ function ShopCheckout() {
                           <option value="Moçambique">Moçambique</option>
                         </Form.Select>
                       </div>
-
                       <div className="row">
                         <div className="col-md-6">
                           <SingleInput
@@ -500,14 +491,12 @@ function ShopCheckout() {
                           />
                         </div>
                       </div>
-
                       <SingleInput
                         title="Nome da Empresa (opcional)"
                         name="empresa"
                         value={dadosEnvio.empresa}
                         onChange={handleEnvioChange}
                       />
-
                       {/* Morada - campo completo */}
                       <SingleInput
                         title="Morada *"
@@ -515,7 +504,6 @@ function ShopCheckout() {
                         value={dadosEnvio.morada}
                         onChange={handleEnvioChange}
                       />
-
                       {/* Apartamento e Cidade */}
                       <div className="row">
                         <div className="col-md-6">
@@ -535,14 +523,13 @@ function ShopCheckout() {
                           />
                         </div>
                       </div>
-
-                      {/* Distrito e Código Postal */}
+                      
                       <div className="row">
                         <div className="col-md-6">
                           <SingleInput
                             title="Distrito"
                             name="distrito"
-                            value={dadosEnvio.distrito}
+                            value={dadosEnvio.codigoPostal}
                             onChange={handleEnvioChange}
                           />
                         </div>
@@ -651,11 +638,23 @@ function ShopCheckout() {
                   <div className="form-group">
                     {error && (
                       <div className="alert alert-danger" role="alert">
-                        {error}
+                        Tem que estar registrado para finalizar a compra.
                       </div>
                     )}
 
-                    {!dadosMB && (
+                    {!isAuthenticated ? (
+                      <div className="alert alert-warning" role="alert">
+                        <p>
+                          Para finalizar a compra, é necessário estar logado.
+                        </p>
+                        <Link
+                          to="/login"
+                          className="btn btn-primary btnhover mt-2"
+                        >
+                          Fazer Login
+                        </Link>
+                      </div>
+                    ) : !dadosMB ? (
                       <div className="form-group">
                         <button
                           className="btn btn-primary btnhover"
@@ -668,7 +667,7 @@ function ShopCheckout() {
                             : "Finalizar Pedido Agora"}
                         </button>
                       </div>
-                    )}
+                    ) : null}
 
                     {loading && (
                       <p>A gerar entidade e referência de pagamento...</p>

@@ -16,8 +16,8 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
 function Header() {
-  const { user, isAuthenticated,wishlistLength,logout } = useAuth();
- 
+  const { user, isAuthenticated, wishlistLength, logout } = useAuth();
+
   const { cartItems, removeFromCart } = useCart();
   const cartTotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.number,
@@ -47,11 +47,13 @@ function Header() {
     if (searchInput && searchInput.value.trim() !== "") {
       const searchQuery = searchInput.value.trim();
       // Redirect to the search results page with the query
-      window.location.href = `/books-list-view-sidebar?search=${encodeURIComponent(searchQuery)}`;
+      window.location.href = `/books-list-view-sidebar?search=${encodeURIComponent(
+        searchQuery
+      )}`;
     } else {
       alert("Por favor, insira um termo de pesquisa válido.");
     }
-  }
+  };
   /* handleSearch End */
 
   /* for open menu Toggle btn  */
@@ -95,8 +97,10 @@ function Header() {
             <div className="extra-cell">
               <ul className="navbar-nav header-right">
                 <li className="nav-item">
-                 
-                  <Link to={isAuthenticated() ? "/wishlist" : "/shop-login"} className="nav-link">
+                  <Link
+                    to={isAuthenticated() ? "/wishlist" : "/shop-login"}
+                    className="nav-link"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       height="24px"
@@ -108,11 +112,8 @@ function Header() {
                       <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z" />
                     </svg>
                     {isAuthenticated() && (
-                      <span className="badge">
-                        {wishlistLength || 0}
-                      </span>
+                      <span className="badge">{wishlistLength || 0}</span>
                     )}
-                   
                   </Link>
                 </li>
                 <Dropdown as="li" className="nav-item">
@@ -294,7 +295,6 @@ function Header() {
                         </div>
                         <div className="dropdown-footer">
                           <Link
-                            
                             onClick={logout}
                             className="btn btn-primary w-100 btnhover btn-sm"
                           >
@@ -383,7 +383,7 @@ function Header() {
                     type="text"
                     className="form-control"
                     aria-label="Text input with dropdown button"
-                    placeholder="Search Books Here"
+                    placeholder="Procura os teu Livros Aqui"
                     value={searchQuery}
                     onChange={handleSearchChange}
                   />
@@ -429,39 +429,22 @@ function Header() {
                   );
                 })}
               </ul>
-              <div className="dz-social-icon">
+              <div className="d-block d-md-none">
+                {" "}
+                {/* Mostra apenas no mobile */}
                 <ul>
                   <li>
-                    <a
-                      className="fab fa-facebook-f"
-                      target="_blank"
-                      rel="noreferrer"
-                      href="https://www.facebook.com/dexignzone"
-                    ></a>
-                  </li>
-                  <li>
-                    <a
-                      className="fab fa-twitter"
-                      target="_blank"
-                      rel="noreferrer"
-                      href="https://twitter.com/dexignzones"
-                    ></a>
-                  </li>
-                  <li>
-                    <a
-                      className="fab fa-linkedin-in"
-                      target="_blank"
-                      rel="noreferrer"
-                      href="https://www.linkedin.com/showcase/3686700/admin/"
-                    ></a>
-                  </li>
-                  <li>
-                    <a
-                      className="fab fa-instagram"
-                      target="_blank"
-                      rel="noreferrer"
-                      href="https://www.instagram.com/website_templates__/"
-                    ></a>
+                    <ul className="nav navbar-nav">
+                      {isAuthenticated() ? (
+                        <li>
+                          <Link  to={"/my-profile"}>Perfil</Link>
+                        </li>
+                      ) : (
+                        <li>
+                          <Link to={"/shop-login"}>Entrar</Link>
+                        </li>
+                      )}
+                    </ul>
                   </li>
                 </ul>
               </div>

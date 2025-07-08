@@ -4,7 +4,6 @@ import PageTitle from "./../layouts/PageTitle";
 import { getOrder } from "../api/routes/order/getOrders";
 // Mock data based on your JSON structure
 
-
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -12,19 +11,18 @@ function OrdersPage() {
   useEffect(() => {
     // Simulate API call
     //setOrders(mockOrders);
-    
+
     // Define and call async function to fetch real data
     const fetchOrders = async () => {
       try {
         const data = await getOrder();
         setOrders(data);
-      }
-      catch (error) {
+      } catch (error) {
         console.error("Error fetching orders:", error);
         // Handle error appropriately
       }
     };
-    
+
     // Uncomment the following line to fetch real data from the API
     fetchOrders();
   }, []);
@@ -363,7 +361,9 @@ function OrdersPage() {
                               Faturação
                             </small>
                             <p className="mb-0">
-                              {selectedOrder.billing_address}
+                              {selectedOrder.billing_address
+                                ?.split(";")
+                                .join(", ")}
                             </p>
                           </div>
                           <div>
@@ -371,7 +371,9 @@ function OrdersPage() {
                               Envio
                             </small>
                             <p className="mb-0">
-                              {selectedOrder.shipping_address}
+                              {selectedOrder.shipping_address
+                                ?.split(";")
+                                .join(", ")}
                             </p>
                           </div>
                         </div>
@@ -387,18 +389,14 @@ function OrdersPage() {
                             Pagamento & Envio
                           </h6>
                           <div className="mb-2">
-                            <small className="text">
-                              Método de Pagamento:
-                            </small>
+                            <small className="text">Método de Pagamento:</small>
                             <span className="ms-2 fw-bold">
                               {selectedOrder.payment_method}
                             </span>
                           </div>
                           {selectedOrder.payment_date && (
                             <div className="mb-2">
-                              <small className="text">
-                                Data de Pagamento:
-                              </small>
+                              <small className="text">Data de Pagamento:</small>
                               <span className="ms-2">
                                 {formatDate(selectedOrder.payment_date)}
                               </span>
@@ -424,9 +422,9 @@ function OrdersPage() {
                       style={{ borderRadius: "15px" }}
                     >
                       <div className="card-body p-0">
-                      <h6 className="card-title text-primary mb-3 px-4 py-3">
-                              Produtos
-                            </h6>
+                        <h6 className="card-title text-primary mb-3 px-4 py-3">
+                          Produtos
+                        </h6>
                         {selectedOrder.order_items.map((item, index) => (
                           <div
                             key={item.orderItem_id}
@@ -437,7 +435,6 @@ function OrdersPage() {
                             }`}
                             style={{ borderColor: "#f0f0f0" }}
                           >
-                            
                             <div className="row align-items-center">
                               <div className="col-md-6">
                                 <div className="d-flex align-items-center">
@@ -484,13 +481,13 @@ function OrdersPage() {
                                     <small className="text d-block">
                                       Preço
                                     </small>
-                                    <strong>{ (item.price + item.discount).toFixed(2)} €</strong>
-                                 
+                                    <strong>
+                                      {(item.price + item.discount).toFixed(2)}{" "}
+                                      €
+                                    </strong>
                                   </div>
                                   <div className="col-3">
-                                    <small className="text d-block">
-                                      Qtd
-                                    </small>
+                                    <small className="text d-block">Qtd</small>
                                     <span
                                       className="badge bg-light text-dark"
                                       style={{
@@ -538,9 +535,9 @@ function OrdersPage() {
                             style={{ borderRadius: "15px", height: "19rem" }}
                           >
                             <div className="card-body p-4">
-                            <h6 className="card-title text-primary mb-3">
-                              Notas
-                            </h6>
+                              <h6 className="card-title text-primary mb-3">
+                                Notas
+                              </h6>
                               {selectedOrder.notes && (
                                 <div className="mb-2">
                                   <span className="badge bg-primary me-2">
@@ -573,9 +570,9 @@ function OrdersPage() {
                         }}
                       >
                         <div className="card-body p-4">
-                        <h6 className="card-title text-primary mb-3">
-                              Resumo Financeiro
-                            </h6>
+                          <h6 className="card-title text-primary mb-3">
+                            Resumo Financeiro
+                          </h6>
                           <div className="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
                             <span>{selectedOrder.subtotal.toFixed(2)} €</span>
