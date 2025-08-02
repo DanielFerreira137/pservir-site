@@ -328,11 +328,11 @@ function BooksListViewSidebar() {
                             <div className="dz-rating-box">
                               <div>
                                 <p className="dz-para">
-                                  {data.description  ||
+                                  {data.description ||
                                     "No description available."}
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                &nbsp;&nbsp;&nbsp;
+                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                  &nbsp;&nbsp;&nbsp;
                                 </p>
                                 <div>
                                   {data.promotion?.promotionId !== 0 ? (

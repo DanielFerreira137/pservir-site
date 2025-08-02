@@ -32,6 +32,7 @@ import BlogListSidebar from './BlogListSidebar';
 import BlogDetail from './BlogDetail';
 import ContactUs from './ContactUs';
 import ShopOrder from './ShopOrder';
+import Clients from './Clients';
 
 import ErrorPage from './ErrorPage';
 import UnderConstruction from './UnderConstruction';
@@ -74,6 +75,7 @@ function Index(props){
 					<Route path='/blog-detail' exact element={<BlogDetail/>} />
 					<Route path='/contact-us' exact element={<ContactUs/>} />
 					<Route path='/shop-order' exact element={<ShopOrder/>} />
+					<Route path="/clients" exact element={<Clients />} />
 				</Route> 
 			</Routes>									
 			<ScrollToTop />

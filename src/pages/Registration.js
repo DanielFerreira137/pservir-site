@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import PageTitle from './../layouts/PageTitle';
 import { postRegister } from '../api/routes/auth/postRegister';
 
 function Registration() {
+  const [searchParams] = useSearchParams();
+  const code = searchParams.get('code'); // Captura o parâmetro ?code=Dui
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,6 +19,17 @@ function Registration() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Opcional: Log do código quando o componente monta
+  useEffect(() => {
+    if (code) {
+      console.log('Código recebido:', code);
+      // Aqui você pode fazer algo com o código, como:
+      // - Validar o código
+      // - Pré-preencher algum campo
+      // - Fazer uma chamada à API
+    }
+  }, [code]);
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -44,6 +58,8 @@ function Registration() {
       name,
       phone,
       date_of_birth: dateOfBirth,
+      // Inclui o código no envio se existir
+      ...(code && { code })
     };
 
     try {
@@ -75,6 +91,13 @@ function Registration() {
                 <form onSubmit={handleSubmit}>
                   <h4 className="text-secondary">Registo</h4>
                   <p className="font-weight-600">Se ainda não tens conta, preenche os dados abaixo para te registares.</p>
+
+                  {/* Mostra o código se existir */}
+                  {code && (
+                    <div className="alert alert-info mb-3">
+                      <small>Código de convite: <strong>{code}</strong></small>
+                    </div>
+                  )}
 
                   {error && <div className="alert alert-danger">{error}</div>}
                   {success && <div className="alert alert-success">{success}</div>}
@@ -108,7 +131,7 @@ function Registration() {
                     <label className="label-title">Confirmar palavra-passe *</label>
                     <input name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required className="form-control" placeholder="Repete a palavra-passe" type="password" />
                   </div>
-
+               
                   <div className="mb-4">
                     <small>Os teus dados serão usados apenas para gerir a tua conta neste site, conforme descrito na <Link to="/privacy-policy">política de privacidade</Link>.</small>
                   </div>

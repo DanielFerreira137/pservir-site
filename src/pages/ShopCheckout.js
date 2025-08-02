@@ -226,7 +226,7 @@ function ShopCheckout() {
       billing_address: formatAddress(dadosFaturacao),
       shipping_address: formatAddress(enderecoEnvio),
       invoice_number: generateInvoiceNumber(),
-      notes: observacoes,
+      notes: "",
       customer_notes: observacoes,
       items: orderItems,
     };

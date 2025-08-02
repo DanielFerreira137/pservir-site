@@ -384,30 +384,19 @@ function ShopDetail() {
                             className={`btn btn-primary btnhover btnhover2 ${
                               book.stock === 0 ? "disabled" : ""
                             }`}
-                            onClick={(e) => {
-                              if (book.stock === 0) {
-                                e.preventDefault();
-                                alert("Produto esgotado");
-                                return;
-                              }
-
+                            
+                            onClick={() => {
                               // Adiciona ao carrinho
                               addToCart({
                                 id: book.id,
                                 title: book.title,
-                                price: book.price,
-                                image: book.image,
-                                number: count > 0 ? count : 1,
-                              });
-                              addToCart({
-                                id: book.id,
-                                title: book.title,
-                                price: book.price,
+                                price:book.price,
                                 image: book.image,
                                 number: 1,
                                 originalPrice: book.originalPrice,
-                                discount: book.originalPrice - (book.price || 0),
-                              })
+                                discount:
+                                book.originalPrice - (book.price || 0)
+                              });
                             }}
                           >
                             <i className="flaticon-shopping-cart-1"></i>

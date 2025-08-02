@@ -145,6 +145,7 @@ function MyProfile() {
   };
 
   const paginasPerfil = [
+    { to: "/clients", icons: "far fa-users", name: "Meus Clientes" },
     { to: "/shop-order", icons: "flaticon-shopping-cart-1", name: "As Minhas Encomendas" },
     { to: "/wishlist", icons: "far fa-heart", name: "Favoritos" },
     { to: "/help-desk", icons: "far fa-id-card", name: "Ajuda" },

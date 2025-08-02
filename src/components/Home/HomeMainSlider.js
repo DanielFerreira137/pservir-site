@@ -204,7 +204,7 @@ export default function HomeMainSlider() {
 
                     <div className="book-btn">
                       <Link
-                        to={`/books-detail/${data._id}`}
+                        to={`/book-details/${data.product_id}`}
                         className="btn btn-primary btnhover"
                       >
                         Ver Detalhes

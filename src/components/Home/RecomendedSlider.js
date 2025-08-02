@@ -16,6 +16,7 @@ export default function RecomendedSlider() {
       try {
         const response = await getallProductsRecemLancados();
         setData(response.data);
+        console.log("Produtos recomendados:", response.data);
       } catch (error) {
         console.error("Erro ao buscar produtos:", error);
       }
